@@ -1,0 +1,359 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Finance</title>
+<style>
+  *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+  :root{
+    --bg:#0d1117;
+    --card:#161b22;
+    --border:rgba(255,255,255,0.08);
+    --text:#e6edf3;
+    --muted:#8b949e;
+    --accent:#58a6ff;
+    --green:#3fb950;
+    --red:#f85149;
+    --yellow:#d29922;
+    --radius:14px;
+  }
+  body{background:var(--bg);color:var(--text);font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;font-size:14px;padding:16px;min-height:100vh}
+  h2{font-size:15px;font-weight:600;color:var(--muted);text-transform:uppercase;letter-spacing:.08em;margin-bottom:12px}
+  .section{margin-bottom:24px}
+  .card{background:var(--card);border:1px solid var(--border);border-radius:var(--radius);padding:16px}
+
+  /* Net Worth */
+  .nw-total{font-size:32px;font-weight:700;color:var(--green);margin-bottom:4px}
+  .nw-total.neg{color:var(--red)}
+  .nw-label{font-size:11px;color:var(--muted);margin-bottom:16px}
+  .nw-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+  .nw-item{background:rgba(255,255,255,0.04);border-radius:10px;padding:12px}
+  .nw-item-label{font-size:11px;color:var(--muted);margin-bottom:6px}
+  .nw-item-val{font-size:18px;font-weight:600}
+  .nw-item-input{width:100%;background:rgba(255,255,255,0.06);border:1px solid var(--border);border-radius:8px;padding:6px 10px;color:var(--text);font-size:14px;margin-top:4px}
+  .nw-item-input:focus{outline:none;border-color:var(--accent)}
+
+  /* Tabs */
+  .tab-bar{display:flex;gap:6px;margin-bottom:14px;flex-wrap:wrap}
+  .tab-btn{padding:6px 14px;border-radius:20px;border:1px solid var(--border);background:transparent;color:var(--muted);cursor:pointer;font-size:13px;transition:all .15s}
+  .tab-btn.active{background:var(--accent);color:#fff;border-color:transparent}
+
+  /* List items */
+  .list-item{display:flex;align-items:center;gap:12px;padding:12px 0;border-bottom:1px solid var(--border)}
+  .list-item:last-child{border-bottom:none}
+  .list-icon{width:36px;height:36px;border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:18px;flex-shrink:0}
+  .list-info{flex:1;min-width:0}
+  .list-name{font-weight:500;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .list-meta{font-size:12px;color:var(--muted);margin-top:2px}
+  .list-amount{font-weight:600;flex-shrink:0}
+  .list-amount.neg{color:var(--red)}
+  .list-amount.pos{color:var(--green)}
+  .list-del{background:none;border:none;color:var(--muted);cursor:pointer;padding:4px;font-size:16px;flex-shrink:0}
+  .list-del:hover{color:var(--red)}
+
+  /* Add form */
+  .add-form{display:flex;flex-direction:column;gap:10px;padding:14px;background:rgba(255,255,255,0.03);border-radius:10px;margin-top:12px}
+  .add-form.hidden{display:none}
+  .add-row{display:flex;gap:8px;flex-wrap:wrap}
+  .add-input{flex:1;min-width:0;background:rgba(255,255,255,0.06);border:1px solid var(--border);border-radius:8px;padding:8px 12px;color:var(--text);font-size:14px}
+  .add-input:focus{outline:none;border-color:var(--accent)}
+  .add-input::placeholder{color:var(--muted)}
+  .add-select{background:rgba(255,255,255,0.06);border:1px solid var(--border);border-radius:8px;padding:8px 12px;color:var(--text);font-size:14px;cursor:pointer}
+  .add-select option{background:#1c2128}
+  .btn{padding:8px 18px;border-radius:8px;border:none;cursor:pointer;font-size:13px;font-weight:600;transition:opacity .15s}
+  .btn:hover{opacity:.85}
+  .btn-primary{background:var(--accent);color:#fff}
+  .btn-ghost{background:rgba(255,255,255,0.07);color:var(--text)}
+  .add-toggle{background:none;border:1px dashed var(--border);border-radius:8px;padding:8px 14px;color:var(--muted);cursor:pointer;font-size:13px;width:100%;margin-top:8px}
+  .add-toggle:hover{border-color:var(--accent);color:var(--accent)}
+
+  /* Badge */
+  .badge{display:inline-block;padding:2px 8px;border-radius:10px;font-size:11px;font-weight:600}
+  .badge-green{background:rgba(63,185,80,.15);color:var(--green)}
+  .badge-red{background:rgba(248,81,73,.15);color:var(--red)}
+  .badge-yellow{background:rgba(210,153,34,.15);color:var(--yellow)}
+
+  /* Summary row */
+  .summary-row{display:flex;justify-content:space-between;align-items:center;padding:8px 0;border-bottom:1px solid var(--border)}
+  .summary-row:last-child{border-bottom:none;font-weight:600}
+  .empty{text-align:center;color:var(--muted);padding:24px 0;font-size:13px}
+</style>
+</head>
+<body>
+
+<!-- NET WORTH -->
+<div class="section">
+  <h2>Net Worth</h2>
+  <div class="card">
+    <div class="nw-total" id="nwTotal">£0</div>
+    <div class="nw-label">Total across all accounts</div>
+    <div class="nw-grid">
+      <div class="nw-item">
+        <div class="nw-item-label">🏦 Bank / Cash</div>
+        <div class="nw-item-val" id="nwBankVal">£0</div>
+        <input class="nw-item-input" id="nwBank" type="number" placeholder="0" oninput="saveNW()">
+      </div>
+      <div class="nw-item">
+        <div class="nw-item-label">📈 Stocks / ISA</div>
+        <div class="nw-item-val" id="nwStocksVal">£0</div>
+        <input class="nw-item-input" id="nwStocks" type="number" placeholder="0" oninput="saveNW()">
+      </div>
+      <div class="nw-item">
+        <div class="nw-item-label">₿ Crypto</div>
+        <div class="nw-item-val" id="nwCryptoVal">£0</div>
+        <input class="nw-item-input" id="nwCrypto" type="number" placeholder="0" oninput="saveNW()">
+      </div>
+      <div class="nw-item">
+        <div class="nw-item-label">🏠 Other Assets</div>
+        <div class="nw-item-val" id="nwOtherVal">£0</div>
+        <input class="nw-item-input" id="nwOther" type="number" placeholder="0" oninput="saveNW()">
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- SUBSCRIPTIONS -->
+<div class="section">
+  <h2>Subscriptions</h2>
+  <div class="card">
+    <div id="subsList"></div>
+    <button class="add-toggle" onclick="toggleForm('subForm')">+ Add Subscription</button>
+    <div class="add-form hidden" id="subForm">
+      <div class="add-row">
+        <input class="add-input" id="subName" placeholder="Name (e.g. Netflix)" style="flex:2">
+        <input class="add-input" id="subAmount" type="number" placeholder="£/mo" style="flex:1">
+      </div>
+      <div class="add-row">
+        <select class="add-select" id="subCycle">
+          <option value="monthly">Monthly</option>
+          <option value="yearly">Yearly</option>
+          <option value="weekly">Weekly</option>
+        </select>
+        <input class="add-input" id="subEmoji" placeholder="Emoji (optional)" style="flex:1;max-width:140px">
+        <button class="btn btn-primary" onclick="addSub()">Add</button>
+        <button class="btn btn-ghost" onclick="toggleForm('subForm')">Cancel</button>
+      </div>
+    </div>
+    <div id="subSummary" style="margin-top:12px"></div>
+  </div>
+</div>
+
+<!-- ORDERS -->
+<div class="section">
+  <h2>Recent Orders</h2>
+  <div class="card">
+    <div id="ordersList"></div>
+    <button class="add-toggle" onclick="toggleForm('orderForm')">+ Add Order</button>
+    <div class="add-form hidden" id="orderForm">
+      <div class="add-row">
+        <input class="add-input" id="orderName" placeholder="Item / Retailer" style="flex:2">
+        <input class="add-input" id="orderAmount" type="number" placeholder="£" style="flex:1">
+      </div>
+      <div class="add-row">
+        <input class="add-input" id="orderDate" type="date" style="flex:1">
+        <select class="add-select" id="orderStatus">
+          <option value="ordered">Ordered</option>
+          <option value="shipped">Shipped</option>
+          <option value="delivered">Delivered</option>
+          <option value="returned">Returned</option>
+        </select>
+        <button class="btn btn-primary" onclick="addOrder()">Add</button>
+        <button class="btn btn-ghost" onclick="toggleForm('orderForm')">Cancel</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- WISHLIST -->
+<div class="section">
+  <h2>Wishlist</h2>
+  <div class="card">
+    <div id="wishList"></div>
+    <button class="add-toggle" onclick="toggleForm('wishForm')">+ Add Item</button>
+    <div class="add-form hidden" id="wishForm">
+      <div class="add-row">
+        <input class="add-input" id="wishName" placeholder="Item name" style="flex:2">
+        <input class="add-input" id="wishPrice" type="number" placeholder="£ price" style="flex:1">
+      </div>
+      <div class="add-row">
+        <select class="add-select" id="wishPriority">
+          <option value="high">High priority</option>
+          <option value="medium">Medium priority</option>
+          <option value="low">Low priority</option>
+        </select>
+        <input class="add-input" id="wishLink" placeholder="URL (optional)" style="flex:2">
+        <button class="btn btn-primary" onclick="addWish()">Add</button>
+        <button class="btn btn-ghost" onclick="toggleForm('wishForm')">Cancel</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+const fmt = n => '£' + Number(n||0).toLocaleString('en-GB', {minimumFractionDigits:2,maximumFractionDigits:2});
+
+// ── NET WORTH ──────────────────────────────────────────────
+function loadNW() {
+  const bank   = localStorage.getItem('nw:bank')   || '';
+  const stocks = localStorage.getItem('nw:stocks') || '';
+  const crypto = localStorage.getItem('nw:crypto') || '';
+  const other  = localStorage.getItem('nw:other')  || '';
+  document.getElementById('nwBank').value   = bank;
+  document.getElementById('nwStocks').value = stocks;
+  document.getElementById('nwCrypto').value = crypto;
+  document.getElementById('nwOther').value  = other;
+  updateNWDisplay(bank, stocks, crypto, other);
+}
+function saveNW() {
+  const bank   = document.getElementById('nwBank').value;
+  const stocks = document.getElementById('nwStocks').value;
+  const crypto = document.getElementById('nwCrypto').value;
+  const other  = document.getElementById('nwOther').value;
+  localStorage.setItem('nw:bank',   bank);
+  localStorage.setItem('nw:stocks', stocks);
+  localStorage.setItem('nw:crypto', crypto);
+  localStorage.setItem('nw:other',  other);
+  updateNWDisplay(bank, stocks, crypto, other);
+}
+function updateNWDisplay(bank, stocks, crypto, other) {
+  const b = parseFloat(bank)||0, s = parseFloat(stocks)||0, c = parseFloat(crypto)||0, o = parseFloat(other)||0;
+  document.getElementById('nwBankVal').textContent   = fmt(b);
+  document.getElementById('nwStocksVal').textContent = fmt(s);
+  document.getElementById('nwCryptoVal').textContent = fmt(c);
+  document.getElementById('nwOtherVal').textContent  = fmt(o);
+  const total = b+s+c+o;
+  const el = document.getElementById('nwTotal');
+  el.textContent = fmt(total);
+  el.className = 'nw-total' + (total < 0 ? ' neg' : '');
+}
+
+// ── SUBSCRIPTIONS ──────────────────────────────────────────
+function getSubs() { return JSON.parse(localStorage.getItem('subs') || '[]'); }
+function saveSubs(d) { localStorage.setItem('subs', JSON.stringify(d)); }
+function renderSubs() {
+  const subs = getSubs();
+  const el = document.getElementById('subsList');
+  if (!subs.length) { el.innerHTML = '<div class="empty">No subscriptions yet</div>'; renderSubSummary(subs); return; }
+  el.innerHTML = subs.map((s,i) => `
+    <div class="list-item">
+      <div class="list-icon" style="background:rgba(88,166,255,.1)">${s.emoji||'💳'}</div>
+      <div class="list-info">
+        <div class="list-name">${esc(s.name)}</div>
+        <div class="list-meta">${s.cycle}</div>
+      </div>
+      <div class="list-amount neg">${fmt(s.amount)}</div>
+      <button class="list-del" onclick="delSub(${i})">×</button>
+    </div>`).join('');
+  renderSubSummary(subs);
+}
+function renderSubSummary(subs) {
+  const monthly = subs.reduce((a,s) => {
+    const v = parseFloat(s.amount)||0;
+    if (s.cycle==='yearly') return a + v/12;
+    if (s.cycle==='weekly') return a + v*4.33;
+    return a + v;
+  }, 0);
+  document.getElementById('subSummary').innerHTML = subs.length ? `
+    <div class="summary-row"><span>Monthly total</span><span class="list-amount neg">${fmt(monthly)}</span></div>
+    <div class="summary-row"><span>Yearly total</span><span class="list-amount neg">${fmt(monthly*12)}</span></div>` : '';
+}
+function addSub() {
+  const name = document.getElementById('subName').value.trim();
+  const amount = document.getElementById('subAmount').value;
+  if (!name || !amount) return;
+  const subs = getSubs();
+  subs.push({ name, amount: parseFloat(amount), cycle: document.getElementById('subCycle').value, emoji: document.getElementById('subEmoji').value.trim()||'💳' });
+  saveSubs(subs);
+  document.getElementById('subName').value = '';
+  document.getElementById('subAmount').value = '';
+  document.getElementById('subEmoji').value = '';
+  toggleForm('subForm');
+  renderSubs();
+}
+function delSub(i) { const d = getSubs(); d.splice(i,1); saveSubs(d); renderSubs(); }
+
+// ── ORDERS ─────────────────────────────────────────────────
+function getOrders() { return JSON.parse(localStorage.getItem('orders') || '[]'); }
+function saveOrders(d) { localStorage.setItem('orders', JSON.stringify(d)); }
+const STATUS_BADGE = { ordered:'badge-yellow', shipped:'badge-yellow', delivered:'badge-green', returned:'badge-red' };
+function renderOrders() {
+  const orders = getOrders();
+  const el = document.getElementById('ordersList');
+  if (!orders.length) { el.innerHTML = '<div class="empty">No orders yet</div>'; return; }
+  el.innerHTML = orders.map((o,i) => `
+    <div class="list-item">
+      <div class="list-icon" style="background:rgba(63,185,80,.1)">📦</div>
+      <div class="list-info">
+        <div class="list-name">${esc(o.name)}</div>
+        <div class="list-meta">${o.date||''} &nbsp;<span class="badge ${STATUS_BADGE[o.status]||''}">${o.status}</span></div>
+      </div>
+      <div class="list-amount neg">${fmt(o.amount)}</div>
+      <button class="list-del" onclick="delOrder(${i})">×</button>
+    </div>`).join('');
+}
+function addOrder() {
+  const name = document.getElementById('orderName').value.trim();
+  const amount = document.getElementById('orderAmount').value;
+  if (!name) return;
+  const orders = getOrders();
+  orders.unshift({ name, amount: parseFloat(amount)||0, date: document.getElementById('orderDate').value, status: document.getElementById('orderStatus').value });
+  saveOrders(orders);
+  document.getElementById('orderName').value = '';
+  document.getElementById('orderAmount').value = '';
+  document.getElementById('orderDate').value = '';
+  toggleForm('orderForm');
+  renderOrders();
+}
+function delOrder(i) { const d = getOrders(); d.splice(i,1); saveOrders(d); renderOrders(); }
+
+// ── WISHLIST ───────────────────────────────────────────────
+function getWish() { return JSON.parse(localStorage.getItem('wishlist') || '[]'); }
+function saveWish(d) { localStorage.setItem('wishlist', JSON.stringify(d)); }
+const PRIORITY_BADGE = { high:'badge-red', medium:'badge-yellow', low:'badge-green' };
+function renderWish() {
+  const items = getWish();
+  const el = document.getElementById('wishList');
+  if (!items.length) { el.innerHTML = '<div class="empty">Wishlist is empty</div>'; return; }
+  el.innerHTML = items.map((w,i) => `
+    <div class="list-item">
+      <div class="list-icon" style="background:rgba(210,153,34,.1)">⭐</div>
+      <div class="list-info">
+        <div class="list-name">${w.link ? `<a href="${esc(w.link)}" target="_blank" style="color:var(--accent);text-decoration:none">${esc(w.name)}</a>` : esc(w.name)}</div>
+        <div class="list-meta"><span class="badge ${PRIORITY_BADGE[w.priority]||''}">${w.priority}</span></div>
+      </div>
+      <div class="list-amount">${fmt(w.price)}</div>
+      <button class="list-del" onclick="delWish(${i})">×</button>
+    </div>`).join('');
+}
+function addWish() {
+  const name = document.getElementById('wishName').value.trim();
+  if (!name) return;
+  const items = getWish();
+  items.push({ name, price: parseFloat(document.getElementById('wishPrice').value)||0, priority: document.getElementById('wishPriority').value, link: document.getElementById('wishLink').value.trim() });
+  saveWish(items);
+  document.getElementById('wishName').value = '';
+  document.getElementById('wishPrice').value = '';
+  document.getElementById('wishLink').value = '';
+  toggleForm('wishForm');
+  renderWish();
+}
+function delWish(i) { const d = getWish(); d.splice(i,1); saveWish(d); renderWish(); }
+
+// ── UTILS ──────────────────────────────────────────────────
+function toggleForm(id) {
+  const el = document.getElementById(id);
+  el.classList.toggle('hidden');
+}
+function esc(s) {
+  return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+
+// ── INIT ───────────────────────────────────────────────────
+loadNW();
+renderSubs();
+renderOrders();
+renderWish();
+</script>
+</body>
+</html>
