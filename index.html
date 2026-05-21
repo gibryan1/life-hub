@@ -2892,6 +2892,7 @@ button { font-family: inherit; }
     <nav class="tab-nav" id="tabNav">
       <button class="tab-btn active" data-tab="overview">📊 Overview</button>
       <button class="tab-btn" data-tab="new-trade">➕ New Trade</button>
+      <button class="tab-btn" data-tab="hindsight">👁 Hindsight</button>
       <button class="tab-btn" data-tab="journal">📋 Journal</button>
       <button class="tab-btn" data-tab="ai">🤖 AI Analysis</button>
     </nav>
@@ -3039,7 +3040,14 @@ button { font-family: inherit; }
       <div class="card">
         <div class="journal-header">
           <div class="card-title" style="margin-bottom:0">Trade Journal</div>
-          <button class="csv-btn" id="csvToggleBtn" onclick="csvTogglePanel()">📥 Import CSV</button>
+          <div style="display:flex;gap:6px;align-items:center;flex-wrap:wrap">
+            <div class="dir-toggle" style="gap:4px" id="journalTypeFilter">
+              <button class="dir-btn long active" data-jtype="real" style="font-size:10px;padding:5px 10px;min-height:30px">Real</button>
+              <button class="dir-btn short" data-jtype="hindsight" style="font-size:10px;padding:5px 10px;min-height:30px;color:#A78BFA;background:rgba(167,139,250,0.08);border-color:rgba(167,139,250,0.2)">Hindsight</button>
+              <button class="dir-btn" data-jtype="all" style="font-size:10px;padding:5px 10px;min-height:30px">All</button>
+            </div>
+            <button class="csv-btn" id="csvToggleBtn" onclick="csvTogglePanel()">📥 Import CSV</button>
+          </div>
           <div class="journal-filter" id="journalFilter" style="display:none">
             Filtered: <span id="filterDateLabel"></span>
             <button class="filter-clear" id="filterClear">× Clear</button>
@@ -3061,6 +3069,65 @@ button { font-family: inherit; }
     </div>
 
     <!-- TAB: AI ANALYSIS -->
+    <!-- TAB: HINDSIGHT -->
+    <div class="tab-panel" id="tab-hindsight">
+      <div class="card" style="margin-bottom:14px">
+        <div class="card-title" style="display:flex;align-items:center;gap:10px">
+          <span>👁 Hindsight Trade Logger</span>
+          <span style="font-size:11px;font-weight:400;color:var(--text-tertiary);background:rgba(255,255,255,0.05);padding:3px 8px;border-radius:6px">Not counted in real PnL</span>
+        </div>
+        <p style="font-size:12px;color:var(--text-tertiary);margin:0 0 16px">Log setups you spotted in hindsight to build your pattern library. These won't affect your equity curve or stats.</p>
+        <div class="form-grid">
+          <div class="form-full">
+            <label class="field-label">Direction</label>
+            <div class="dir-toggle">
+              <button class="dir-btn long active" data-hdir="long">↑ Long</button>
+              <button class="dir-btn short" data-hdir="short">↓ Short</button>
+            </div>
+          </div>
+          <div><label class="field-label" for="hsPnlInput">Hypothetical PnL ($)</label><input class="field-input" type="number" id="hsPnlInput" placeholder="0.00" step="1"></div>
+          <div><label class="field-label" for="hsRrInput">R:R</label><input class="field-input" type="number" id="hsRrInput" placeholder="e.g. 2.5" step="0.1" min="0"></div>
+          <div><label class="field-label" for="hsDateInput">Date</label><input class="field-input" type="date" id="hsDateInput"></div>
+          <div class="form-full">
+            <label class="field-label">Confluences</label>
+            <div class="conf-grid" id="hsConfGrid">
+              <label class="conf-item"><input type="checkbox" value="STDV"><span class="conf-check"></span><span class="conf-label">STDV</span></label>
+              <label class="conf-item"><input type="checkbox" value="OTE"><span class="conf-check"></span><span class="conf-label">OTE</span></label>
+              <label class="conf-item"><input type="checkbox" value="Liq Sweep"><span class="conf-check"></span><span class="conf-label">Liq Sweep</span></label>
+              <label class="conf-item"><input type="checkbox" value="15s IFVG"><span class="conf-check"></span><span class="conf-label">15s IFVG</span></label>
+              <label class="conf-item"><input type="checkbox" value="30s IFVG"><span class="conf-check"></span><span class="conf-label">30s IFVG</span></label>
+              <label class="conf-item"><input type="checkbox" value="1m IFVG"><span class="conf-check"></span><span class="conf-label">1m IFVG</span></label>
+              <label class="conf-item"><input type="checkbox" value="2m IFVG"><span class="conf-check"></span><span class="conf-label">2m IFVG</span></label>
+              <label class="conf-item"><input type="checkbox" value="3m IFVG"><span class="conf-check"></span><span class="conf-label">3m IFVG</span></label>
+              <label class="conf-item"><input type="checkbox" value="5m IFVG"><span class="conf-check"></span><span class="conf-label">5m IFVG</span></label>
+              <label class="conf-item"><input type="checkbox" value="HTF FVG"><span class="conf-check"></span><span class="conf-label">HTF FVG</span></label>
+            </div>
+          </div>
+          <div class="form-full">
+            <label class="field-label" for="hsNotes">What did you see? Why would you have taken this?</label>
+            <textarea class="field-input" id="hsNotes" rows="3" placeholder="Describe the setup, what confluences aligned, why this was a valid entry…"></textarea>
+          </div>
+          <div class="form-full">
+            <label class="field-label" for="hsLearning">What's the lesson?</label>
+            <textarea class="field-input" id="hsLearning" rows="2" placeholder="What should you look for next time? What would you do differently?"></textarea>
+          </div>
+          <div class="form-full">
+            <button class="save-btn" id="saveHindsightBtn" style="background:linear-gradient(135deg,rgba(167,139,250,0.2),rgba(167,139,250,0.1));border-color:rgba(167,139,250,0.4)">👁 Log Hindsight Trade</button>
+            <div class="form-status" id="hsFormStatus"></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Hindsight Trade List -->
+      <div class="card">
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px">
+          <div class="card-title" style="margin-bottom:0">Hindsight Library</div>
+          <div id="hsStats" style="font-size:11px;color:var(--text-tertiary)"></div>
+        </div>
+        <div id="hsTradeList"></div>
+      </div>
+    </div>
+
     <div class="tab-panel" id="tab-ai">
       <button class="ai-btn" id="analyseBtn">✨ Analyse My Patterns (last 30 trades)</button>
       <div class="card" id="analysisCard" style="display:none">
@@ -4703,7 +4770,7 @@ function calcStats(trades) {
   return { winRate, totalPnl, avgRR, streak, wins: wins.length, total };
 }
 function renderStats() {
-  const s = calcStats(getTrades());
+  const s = calcStats(getTrades().filter(t => t.type !== 'hindsight'));
   const badDayPnl = getBadDays().filter(d => d.pnl != null).reduce((sum, d) => sum + d.pnl, 0);
   const combinedPnl = s.totalPnl + badDayPnl;
   const wr = document.getElementById('statWinRate'), ar = document.getElementById('statAvgRR');
@@ -4728,7 +4795,7 @@ function drawEquityCurve() {
   canvas.width = W * dpr; canvas.height = H * dpr;
   canvas.style.width = W + 'px'; canvas.style.height = H + 'px';
   const ctx = canvas.getContext('2d'); ctx.scale(dpr, dpr);
-  const trades = getTrades().filter(t => t.pnl != null).map(t => ({ pnl: t.pnl, timestamp: t.timestamp }));
+  const trades = getTrades().filter(t => t.pnl != null && t.type !== 'hindsight').map(t => ({ pnl: t.pnl, timestamp: t.timestamp }));
   const badEntries = getBadDays().filter(d => d.pnl != null).map(d => ({ pnl: d.pnl, timestamp: d.ts || new Date(d.date).getTime(), isBadDay: true }));
   const allEntries = [...trades, ...badEntries].sort((a, b) => a.timestamp - b.timestamp);
   const pad = { t: 16, r: 10, b: 28, l: 48 };
@@ -4844,14 +4911,17 @@ document.getElementById('calPrev').addEventListener('click', () => { calMonth--;
 document.getElementById('calNext').addEventListener('click', () => { calMonth++; if (calMonth > 11) { calMonth = 0; calYear++; } calFilterDate = null; renderCalendar(); });
 
 /* ═══════════ TRADING: JOURNAL ═══════════ */
+let _journalTypeFilter = 'real';
 function renderTradeList() {
   const container = document.getElementById('tradeListEl');
   const filterEl = document.getElementById('journalFilter'), filterLbl = document.getElementById('filterDateLabel');
   let trades = getTrades().sort((a, b) => b.timestamp - a.timestamp);
+  if (_journalTypeFilter === 'real') trades = trades.filter(t => t.type !== 'hindsight');
+  else if (_journalTypeFilter === 'hindsight') trades = trades.filter(t => t.type === 'hindsight');
   if (calFilterDate) { trades = trades.filter(t => t.date === calFilterDate); filterEl.style.display = 'flex'; filterLbl.textContent = calFilterDate; }
   else { filterEl.style.display = 'none'; }
   container.innerHTML = '';
-  if (trades.length === 0) { container.innerHTML = '<div class="trade-empty">No trades logged yet.<br>Use the ➕ New Trade tab to get started.</div>'; return; }
+  if (trades.length === 0) { container.innerHTML = '<div class="trade-empty">No trades here yet.</div>'; return; }
   trades.forEach(trade => {
     const item = document.createElement('div'); item.className = 'trade-item';
     if (trade.screenshot) { const img = document.createElement('img'); img.className = 'trade-thumb'; img.src = trade.screenshot; img.alt = ''; item.appendChild(img); }
@@ -4859,6 +4929,7 @@ function renderTradeList() {
     const body = document.createElement('div'); body.className = 'trade-body';
     const meta = document.createElement('div'); meta.className = 'trade-meta';
     const date = document.createElement('span'); date.className = 'trade-date'; date.textContent = trade.date || '—'; meta.appendChild(date);
+    if (trade.type === 'hindsight') { const hs = document.createElement('span'); hs.style.cssText = 'font-size:9px;font-weight:700;padding:2px 6px;border-radius:4px;background:rgba(167,139,250,0.15);color:#A78BFA;letter-spacing:0.08em;text-transform:uppercase'; hs.textContent = '👁 Hindsight'; meta.appendChild(hs); }
     if (trade.direction) { const dir = document.createElement('span'); dir.className = `dir-badge ${trade.direction}`; dir.textContent = trade.direction === 'long' ? '↑ Long' : trade.direction === 'short' ? '↓ Short' : '↔ BE'; meta.appendChild(dir); }
     if (trade.rr != null) { const rr = document.createElement('span'); rr.className = 'trade-rr ' + (trade.rr >= 0 ? 'pos' : 'neg'); rr.textContent = trade.rr.toFixed(2) + 'R'; meta.appendChild(rr); }
     if (trade.pnl != null) { const pnl = document.createElement('span'); pnl.className = 'trade-pnl ' + (trade.pnl >= 0 ? 'pos' : 'neg'); pnl.textContent = (trade.pnl >= 0 ? '+' : '') + '$' + trade.pnl.toFixed(2); meta.appendChild(pnl); }
@@ -4879,6 +4950,107 @@ function renderTradeList() {
   });
 }
 document.getElementById('filterClear').addEventListener('click', () => { calFilterDate = null; renderTradeList(); renderCalendar(); });
+
+/* ═══════════ JOURNAL TYPE FILTER ═══════════ */
+document.querySelectorAll('#journalTypeFilter [data-jtype]').forEach(btn => {
+  btn.addEventListener('click', () => {
+    document.querySelectorAll('#journalTypeFilter [data-jtype]').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+    _journalTypeFilter = btn.dataset.jtype;
+    renderTradeList();
+  });
+});
+
+/* ═══════════ HINDSIGHT TRADES ═══════════ */
+const HINDSIGHT_KEY = 'nq_hindsight_v1';
+let _currentHsDir = 'long';
+
+function getHindsightTrades() { try { return JSON.parse(localStorage.getItem(HINDSIGHT_KEY)) || []; } catch { return []; } }
+function saveHindsightTrades(t) { localStorage.setItem(HINDSIGHT_KEY, JSON.stringify(t)); }
+
+document.querySelectorAll('[data-hdir]').forEach(btn => {
+  btn.addEventListener('click', () => {
+    document.querySelectorAll('[data-hdir]').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+    _currentHsDir = btn.dataset.hdir;
+  });
+});
+
+document.getElementById('hsDateInput').value = new Date().toISOString().slice(0, 10);
+
+document.getElementById('saveHindsightBtn').addEventListener('click', () => {
+  const pnl = parseFloat(document.getElementById('hsPnlInput').value);
+  const rr  = parseFloat(document.getElementById('hsRrInput').value);
+  const date = document.getElementById('hsDateInput').value || new Date().toISOString().slice(0, 10);
+  const notes = document.getElementById('hsNotes').value.trim();
+  const learning = document.getElementById('hsLearning').value.trim();
+  const confluences = [...document.querySelectorAll('#hsConfGrid input:checked')].map(c => c.value);
+  const trade = {
+    id: uid(), type: 'hindsight', date, timestamp: Date.now(),
+    direction: _currentHsDir,
+    pnl: isNaN(pnl) ? null : pnl,
+    rr: isNaN(rr) ? null : rr,
+    confluences, description: notes, learning,
+    screenshot: null, garmin: null,
+  };
+  // Also store in main trades array so it appears in journal with filter
+  const all = getTrades(); all.push(trade); saveTrades(all);
+  // And store in dedicated hindsight key for easy querying
+  const hs = getHindsightTrades(); hs.push(trade); saveHindsightTrades(hs);
+  const statusEl = document.getElementById('hsFormStatus');
+  flash(statusEl, '✓ Hindsight trade logged!', 'var(--success)');
+  // Clear form
+  ['hsPnlInput','hsRrInput','hsNotes','hsLearning'].forEach(id => { const el = document.getElementById(id); if (el) el.value = ''; });
+  document.querySelectorAll('#hsConfGrid input').forEach(c => c.checked = false);
+  document.getElementById('hsDateInput').value = new Date().toISOString().slice(0, 10);
+  document.querySelectorAll('[data-hdir]').forEach(b => b.classList.remove('active'));
+  document.querySelector('[data-hdir="long"]').classList.add('active');
+  _currentHsDir = 'long';
+  renderHindsightList();
+});
+
+function renderHindsightList() {
+  const el = document.getElementById('hsTradeList');
+  const statsEl = document.getElementById('hsStats');
+  if (!el) return;
+  const trades = getHindsightTrades().sort((a, b) => b.timestamp - a.timestamp);
+  if (statsEl) {
+    const wins = trades.filter(t => t.pnl > 0).length;
+    const wr = trades.length ? Math.round(wins / trades.length * 100) : 0;
+    const totalPnl = trades.reduce((s, t) => s + (t.pnl || 0), 0);
+    statsEl.textContent = trades.length ? `${trades.length} trades · ${wr}% win rate · Hypothetical ${totalPnl >= 0 ? '+' : ''}$${totalPnl.toFixed(0)}` : '';
+  }
+  if (!trades.length) { el.innerHTML = '<div class="trade-empty" style="color:var(--text-tertiary);font-size:12px;text-align:center;padding:20px">No hindsight trades yet. Log setups you spotted after the fact to build your pattern library.</div>'; return; }
+  el.innerHTML = trades.map(t => {
+    const dirColor = t.direction === 'long' ? '#6BE3A4' : '#FF6B6B';
+    const dirLabel = t.direction === 'long' ? '↑ Long' : '↓ Short';
+    const pnlColor = (t.pnl || 0) >= 0 ? '#6BE3A4' : '#FF6B6B';
+    return `<div style="background:rgba(167,139,250,0.04);border:1px solid rgba(167,139,250,0.15);border-radius:12px;padding:14px;margin-bottom:10px">
+      <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-bottom:8px">
+        <span style="font-size:12px;font-weight:700;color:var(--text-primary)">${t.date}</span>
+        <span style="font-size:11px;font-weight:700;color:${dirColor};background:${dirColor}22;padding:2px 7px;border-radius:5px">${dirLabel}</span>
+        ${t.pnl != null ? `<span style="font-size:12px;font-weight:700;color:${pnlColor}">${t.pnl >= 0 ? '+' : ''}$${t.pnl}</span>` : ''}
+        ${t.rr != null ? `<span style="font-size:11px;color:var(--text-tertiary)">${t.rr}R</span>` : ''}
+        <button onclick="deleteHindsight('${t.id}')" style="margin-left:auto;background:none;border:none;color:var(--text-tertiary);cursor:pointer;font-size:13px" title="Delete">🗑</button>
+      </div>
+      ${t.confluences && t.confluences.length ? `<div style="display:flex;flex-wrap:wrap;gap:4px;margin-bottom:8px">${t.confluences.map(c => `<span class="conf-chip">${c}</span>`).join('')}</div>` : ''}
+      ${t.description ? `<div style="font-size:12px;color:var(--text-secondary);margin-bottom:4px">${escHtml(t.description)}</div>` : ''}
+      ${t.learning ? `<div style="font-size:11px;color:#A78BFA;background:rgba(167,139,250,0.08);border-radius:6px;padding:6px 8px;margin-top:6px">💡 ${escHtml(t.learning)}</div>` : ''}
+    </div>`;
+  }).join('');
+}
+
+window.deleteHindsight = function(id) {
+  if (!confirm('Delete this hindsight trade?')) return;
+  saveHindsightTrades(getHindsightTrades().filter(t => t.id !== id));
+  saveTrades(getTrades().filter(t => t.id !== id));
+  renderHindsightList();
+};
+
+// Render hindsight list when tab is activated
+document.querySelectorAll('.tab-btn[data-tab="hindsight"]').forEach(btn => {
+  btn.addEventListener('click', () => renderHindsightList());
+});
 
 /* ═══════════ TRADING: BAD DAY MODAL ═══════════ */
 let selectedBadTags = [];
