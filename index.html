@@ -109,7 +109,8 @@ body::after {
 .sidebar-btn:hover { color: var(--text-secondary); background: rgba(255,255,255,0.05); }
 .sidebar-btn.active { color: var(--text-primary); background: rgba(255,255,255,0.08); }
 .sidebar-btn.active .sb-icon { filter: none; opacity: 1; }
-.sb-icon { font-size: 16px; width: 22px; text-align: center; flex-shrink: 0; opacity: 0.6; transition: opacity 0.18s; }
+.sb-icon { display: flex; align-items: center; justify-content: center; width: 22px; flex-shrink: 0; opacity: 0.6; transition: opacity 0.18s; }
+.sb-icon svg { width: 16px; height: 16px; }
 .sidebar-btn.active .sb-label { color: var(--text-primary); }
 .sb-label { flex: 1; }
 /* Color accents per section */
@@ -146,11 +147,11 @@ body::after {
   display: none;
   position: fixed; bottom: 0; left: 0; right: 0;
   height: var(--bottom-nav-h);
-  background: rgba(13,13,15,0.95);
+  background: rgba(13,13,15,0.97);
   border-top: 1px solid rgba(255,255,255,0.07);
   backdrop-filter: blur(24px) saturate(1.3);
   z-index: 200;
-  padding: 0 4px;
+  padding: 0;
   padding-bottom: env(safe-area-inset-bottom, 0px);
   overflow-x: auto;
   -webkit-overflow-scrolling: touch;
@@ -159,18 +160,19 @@ body::after {
 .bottom-nav::-webkit-scrollbar { display: none; }
 .bottom-nav-inner {
   display: flex; align-items: stretch;
-  height: 100%; min-width: max-content; width: 100%;
+  height: 100%; width: max-content; min-width: 100%;
   gap: 0;
 }
 .bottom-btn {
   display: flex; flex-direction: column; align-items: center; justify-content: center;
-  gap: 3px; padding: 6px 10px; min-width: 60px;
+  gap: 2px; padding: 6px 14px; min-width: 56px; min-height: 44px;
   border: none; background: transparent; color: var(--text-tertiary);
-  font-size: 9px; font-weight: 700; font-family: inherit;
-  cursor: pointer; transition: color 0.18s; letter-spacing: 0.04em; text-transform: uppercase;
-  flex: 1;
+  font-size: 9px; font-weight: 600; font-family: inherit;
+  cursor: pointer; transition: color 0.18s; letter-spacing: 0.03em; text-transform: uppercase;
+  flex-shrink: 0;
 }
-.bottom-btn .bb-icon { font-size: 18px; line-height: 1; }
+.bottom-btn .bb-icon { display: flex; align-items: center; justify-content: center; line-height: 1; }
+.bb-label { font-size: 9px; }
 .bottom-btn.active { color: var(--text-primary); }
 .bottom-btn[data-page="home"].active    { color: var(--color-home); }
 .bottom-btn[data-page="trading"].active { color: var(--color-trading); }
@@ -179,6 +181,11 @@ body::after {
 .bottom-btn[data-page="review"].active  { color: var(--color-review); }
 .bottom-btn[data-page="goals"].active   { color: var(--color-goals); }
 .bottom-btn[data-page="running"].active { color: var(--color-running); }
+.bottom-btn[data-page="glitchy"].active { color: var(--color-glitchy); }
+.bottom-btn[data-page="gym"].active     { color: var(--color-gym); }
+.bottom-btn[data-page="water"].active   { color: var(--color-water); }
+.bottom-btn[data-page="stack"].active   { color: var(--color-stack); }
+.bottom-btn[data-page="finance"].active { color: #68D391; }
 
 /* ── Legacy compat ── */
 .page-nav { display: none; }
@@ -2471,9 +2478,9 @@ button { font-family: inherit; }
 
 /* ══ CHANGE 2: Mobile bottom nav fix ══ */
 @media (max-width: 767px) {
-  .bottom-nav { padding: 4px 0 env(safe-area-inset-bottom, 0); }
-  .bottom-btn { min-width: 0; flex: 1; font-size: 9px; padding: 4px 2px; }
-  .bb-icon { font-size: 18px; }
+  .bottom-nav { padding: 0 0 env(safe-area-inset-bottom, 0); }
+  .bottom-btn { padding: 6px 12px; min-width: 52px; }
+  .bb-icon svg { width: 20px; height: 20px; }
 }
 
 /* ══ CHANGE 3: Water FAB ══ */
@@ -2547,38 +2554,38 @@ button { font-family: inherit; }
       <div class="sidebar-logo-sub">Ryan Victor</div>
     </div>
     <div class="sidebar-nav" id="sidebarNav">
-      <button class="sidebar-btn active" data-page="home"><span class="sb-icon">🏠</span><span class="sb-label">Home</span></button>
-      <button class="sidebar-btn" data-page="trading"><span class="sb-icon">📈</span><span class="sb-label">Trading</span></button>
-      <button class="sidebar-btn" data-page="faith"><span class="sb-icon">✝</span><span class="sb-label">Faith</span></button>
-      <button class="sidebar-btn" data-page="health"><span class="sb-icon">❤️</span><span class="sb-label">Health</span></button>
-      <button class="sidebar-btn" data-page="running"><span class="sb-icon">🏃</span><span class="sb-label">Running</span></button>
+      <button class="sidebar-btn active" data-page="home"><span class="sb-icon"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg></span><span class="sb-label">Home</span></button>
+      <button class="sidebar-btn" data-page="trading"><span class="sb-icon"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="22 7 13.5 15.5 8.5 10.5 2 17"/><polyline points="16 7 22 7 22 13"/></svg></span><span class="sb-label">Trading</span></button>
+      <button class="sidebar-btn" data-page="faith"><span class="sb-icon"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="2" x2="12" y2="22"/><line x1="5" y1="8" x2="19" y2="8"/></svg></span><span class="sb-label">Faith</span></button>
+      <button class="sidebar-btn" data-page="health"><span class="sb-icon"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg></span><span class="sb-label">Health</span></button>
+      <button class="sidebar-btn" data-page="running"><span class="sb-icon"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="13" cy="4" r="2"/><path d="M5 20l4-6 3 3 3-5 4 8"/><path d="M14 12l-3-4-5 3"/></svg></span><span class="sb-label">Running</span></button>
       <div class="sidebar-divider"></div>
-      <button class="sidebar-btn" data-page="glitchy"><span class="sb-icon">⚡</span><span class="sb-label">Glitchy</span></button>
-      <button class="sidebar-btn" data-page="gym"><span class="sb-icon">💪</span><span class="sb-label">Gym</span></button>
-      <button class="sidebar-btn" data-page="water"><span class="sb-icon">💧</span><span class="sb-label">Water</span></button>
-      <button class="sidebar-btn" data-page="stack"><span class="sb-icon">💊</span><span class="sb-label">Stack</span></button>
+      <button class="sidebar-btn" data-page="glitchy"><span class="sb-icon"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg></span><span class="sb-label">Glitchy</span></button>
+      <button class="sidebar-btn" data-page="gym"><span class="sb-icon"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 5v14M18 5v14M2 9h4M18 9h4M2 15h4M18 15h4"/></svg></span><span class="sb-label">Gym</span></button>
+      <button class="sidebar-btn" data-page="water"><span class="sb-icon"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2.69l5.66 5.66a8 8 0 1 1-11.31 0z"/></svg></span><span class="sb-label">Water</span></button>
+      <button class="sidebar-btn" data-page="stack"><span class="sb-icon"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg></span><span class="sb-label">Stack</span></button>
       <div class="sidebar-divider"></div>
-      <button class="sidebar-btn" data-page="review"><span class="sb-icon">📋</span><span class="sb-label">Weekly Review</span></button>
-      <button class="sidebar-btn" data-page="goals"><span class="sb-icon">🎯</span><span class="sb-label">Goals</span></button>
-      <button class="sidebar-btn" data-page="finance"><span class="sb-icon">💰</span><span class="sb-label">Finance</span></button>
+      <button class="sidebar-btn" data-page="review"><span class="sb-icon"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="8" y1="13" x2="16" y2="13"/><line x1="8" y1="17" x2="12" y2="17"/></svg></span><span class="sb-label">Weekly Review</span></button>
+      <button class="sidebar-btn" data-page="goals"><span class="sb-icon"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="6"/><circle cx="12" cy="12" r="2"/></svg></span><span class="sb-label">Goals</span></button>
+      <button class="sidebar-btn" data-page="finance"><span class="sb-icon"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg></span><span class="sb-label">Finance</span></button>
     </div>
   </nav>
 
   <!-- ══════════ BOTTOM NAV (mobile) ══════════ -->
   <nav class="bottom-nav" id="bottomNav">
     <div class="bottom-nav-inner">
-      <button class="bottom-btn active" data-page="home"><span class="bb-icon">🏠</span>Home</button>
-      <button class="bottom-btn" data-page="trading"><span class="bb-icon">📈</span>Trading</button>
-      <button class="bottom-btn" data-page="faith"><span class="bb-icon">✝</span>Faith</button>
-      <button class="bottom-btn" data-page="health"><span class="bb-icon">❤️</span>Health</button>
-      <button class="bottom-btn" data-page="running"><span class="bb-icon">🏃</span>Running</button>
-      <button class="bottom-btn" data-page="glitchy"><span class="bb-icon">⚡</span>Glitchy</button>
-      <button class="bottom-btn" data-page="gym"><span class="bb-icon">💪</span>Gym</button>
-      <button class="bottom-btn" data-page="water"><span class="bb-icon">💧</span>Water</button>
-      <button class="bottom-btn" data-page="stack"><span class="bb-icon">💊</span>Stack</button>
-      <button class="bottom-btn" data-page="review"><span class="bb-icon">📋</span>Review</button>
-      <button class="bottom-btn" data-page="goals"><span class="bb-icon">🎯</span>Goals</button>
-      <button class="bottom-btn" data-page="finance"><span class="bb-icon">💰</span>Finance</button>
+      <button class="bottom-btn active" data-page="home"><span class="bb-icon"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg></span><span class="bb-label">Home</span></button>
+      <button class="bottom-btn" data-page="trading"><span class="bb-icon"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="22 7 13.5 15.5 8.5 10.5 2 17"/><polyline points="16 7 22 7 22 13"/></svg></span><span class="bb-label">Trading</span></button>
+      <button class="bottom-btn" data-page="faith"><span class="bb-icon"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="2" x2="12" y2="22"/><line x1="5" y1="8" x2="19" y2="8"/></svg></span><span class="bb-label">Faith</span></button>
+      <button class="bottom-btn" data-page="health"><span class="bb-icon"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg></span><span class="bb-label">Health</span></button>
+      <button class="bottom-btn" data-page="running"><span class="bb-icon"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="13" cy="4" r="2"/><path d="M5 20l4-6 3 3 3-5 4 8"/><path d="M14 12l-3-4-5 3"/></svg></span><span class="bb-label">Running</span></button>
+      <button class="bottom-btn" data-page="glitchy"><span class="bb-icon"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg></span><span class="bb-label">Glitchy</span></button>
+      <button class="bottom-btn" data-page="gym"><span class="bb-icon"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 5v14M18 5v14M2 9h4M18 9h4M2 15h4M18 15h4"/></svg></span><span class="bb-label">Gym</span></button>
+      <button class="bottom-btn" data-page="water"><span class="bb-icon"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2.69l5.66 5.66a8 8 0 1 1-11.31 0z"/></svg></span><span class="bb-label">Water</span></button>
+      <button class="bottom-btn" data-page="stack"><span class="bb-icon"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg></span><span class="bb-label">Stack</span></button>
+      <button class="bottom-btn" data-page="review"><span class="bb-icon"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="8" y1="13" x2="16" y2="13"/></svg></span><span class="bb-label">Review</span></button>
+      <button class="bottom-btn" data-page="goals"><span class="bb-icon"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="6"/><circle cx="12" cy="12" r="2"/></svg></span><span class="bb-label">Goals</span></button>
+      <button class="bottom-btn" data-page="finance"><span class="bb-icon"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg></span><span class="bb-label">Finance</span></button>
     </div>
   </nav>
 
@@ -4697,14 +4704,17 @@ function calcStats(trades) {
 }
 function renderStats() {
   const s = calcStats(getTrades());
+  const badDayPnl = getBadDays().filter(d => d.pnl != null).reduce((sum, d) => sum + d.pnl, 0);
+  const combinedPnl = s.totalPnl + badDayPnl;
   const wr = document.getElementById('statWinRate'), ar = document.getElementById('statAvgRR');
   const tp = document.getElementById('statPnL'),      st = document.getElementById('statStreak');
   wr.textContent = s.winRate != null ? s.winRate.toFixed(0) + '%' : '—';
   wr.className   = 'stat-value' + (s.winRate != null ? (s.winRate >= 50 ? ' win' : ' loss') : '');
   ar.textContent = s.avgRR != null ? s.avgRR.toFixed(2) + 'R' : '—';
   ar.className   = 'stat-value' + (s.avgRR != null ? (s.avgRR >= 1 ? ' win' : ' loss') : '');
-  tp.textContent = s.total > 0 ? (s.totalPnl >= 0 ? '+' : '') + '$' + s.totalPnl.toFixed(0) : '—';
-  tp.className   = 'stat-value' + (s.total > 0 ? (s.totalPnl >= 0 ? ' win' : ' loss') : '');
+  const hasPnlData = s.total > 0 || badDayPnl !== 0;
+  tp.textContent = hasPnlData ? (combinedPnl >= 0 ? '+' : '') + '$' + combinedPnl.toFixed(0) : '—';
+  tp.className   = 'stat-value' + (hasPnlData ? (combinedPnl >= 0 ? ' win' : ' loss') : '');
   if (s.streak === 0) { st.textContent = '—'; st.className = 'stat-value'; }
   else { st.textContent = Math.abs(s.streak) + (s.streak > 0 ? 'W' : 'L'); st.className = 'stat-value' + (s.streak > 0 ? ' win' : ' loss'); }
 }
@@ -4718,11 +4728,13 @@ function drawEquityCurve() {
   canvas.width = W * dpr; canvas.height = H * dpr;
   canvas.style.width = W + 'px'; canvas.style.height = H + 'px';
   const ctx = canvas.getContext('2d'); ctx.scale(dpr, dpr);
-  const trades = getTrades().filter(t => t.pnl != null).sort((a, b) => a.timestamp - b.timestamp);
+  const trades = getTrades().filter(t => t.pnl != null).map(t => ({ pnl: t.pnl, timestamp: t.timestamp }));
+  const badEntries = getBadDays().filter(d => d.pnl != null).map(d => ({ pnl: d.pnl, timestamp: d.ts || new Date(d.date).getTime(), isBadDay: true }));
+  const allEntries = [...trades, ...badEntries].sort((a, b) => a.timestamp - b.timestamp);
   const pad = { t: 16, r: 10, b: 28, l: 48 };
   const plotW = W - pad.l - pad.r, plotH = H - pad.t - pad.b;
   let cum = 0; const pts = [{ x: 0, y: 0 }];
-  trades.forEach((t, i) => { cum += t.pnl; pts.push({ x: i + 1, y: cum }); });
+  allEntries.forEach((t, i) => { cum += t.pnl; pts.push({ x: i + 1, y: cum }); });
   const maxY = Math.max(...pts.map(p => p.y), 0.01);
   const minY = Math.min(...pts.map(p => p.y), -0.01);
   const rangeY = maxY - minY || 1;
@@ -4741,7 +4753,7 @@ function drawEquityCurve() {
     const zY = py(0); ctx.strokeStyle = 'rgba(255,255,255,0.18)'; ctx.setLineDash([5, 5]); ctx.lineWidth = 1;
     ctx.beginPath(); ctx.moveTo(pad.l, zY); ctx.lineTo(W - pad.r, zY); ctx.stroke(); ctx.setLineDash([]);
   }
-  if (pts.length < 2) {
+  if (allEntries.length < 1) {
     ctx.fillStyle = 'rgba(118,116,110,0.5)'; ctx.font = '12px -apple-system,BlinkMacSystemFont,"Inter",sans-serif';
     ctx.textAlign = 'center'; ctx.fillText('Log trades to see your equity curve', W / 2, H / 2); return;
   }
