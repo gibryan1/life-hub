@@ -4560,7 +4560,10 @@ async function fetchGarminStats() {
 
   try {
     const res = await fetch('/api/garmin');
-    if (!res.ok) throw new Error(`HTTP ${res.status}`);
+    if (!res.ok) {
+      const body = await res.json().catch(() => ({}));
+      throw new Error(body.message || `HTTP ${res.status}`);
+    }
     const d = await res.json();
     if (d.error && !d.synced && !d.fromCache) throw new Error(d.message || d.error);
     _cachedGarminData = d;
