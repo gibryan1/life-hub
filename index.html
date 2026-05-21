@@ -524,6 +524,7 @@ textarea.field-input { resize: vertical; min-height: 72px; }
 .dir-btn { flex: 1; padding: 10px; border-radius: 10px; border: 1px solid rgba(255,255,255,0.08); background: rgba(255,255,255,0.04); color: var(--text-tertiary); font-size: 13px; font-weight: 700; font-family: inherit; cursor: pointer; transition: all 0.2s; text-align: center; }
 .dir-btn.long.active  { background: rgba(107,227,164,0.15); border-color: rgba(107,227,164,0.4); color: var(--success); }
 .dir-btn.short.active { background: rgba(255,107,107,0.12); border-color: rgba(255,107,107,0.35); color: var(--danger); }
+.dir-btn.be.active    { background: rgba(120,160,255,0.12); border-color: rgba(120,160,255,0.35); color: #78a0ff; }
 .rr-display { width: 100%; padding: 10px 12px; border-radius: 10px; border: 1px solid rgba(255,255,255,0.06); background: rgba(255,255,255,0.025); font-family: ui-monospace,"SF Mono",Menlo,Consolas,monospace; font-size: 16px; font-weight: 800; letter-spacing: -0.02em; font-variant-numeric: tabular-nums; color: var(--text-tertiary); text-align: center; transition: color 0.2s; }
 .upload-zone { position: relative; border-radius: 12px; border: 1.5px dashed rgba(255,255,255,0.12); background: rgba(255,255,255,0.025); cursor: pointer; overflow: hidden; transition: border-color 0.2s; min-height: 90px; display: flex; align-items: center; justify-content: center; }
 .upload-zone:hover { border-color: rgba(255,255,255,0.25); }
@@ -568,8 +569,9 @@ input[type="range"]::-webkit-slider-thumb:hover { transform: scale(1.2); }
 .trade-meta { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; margin-bottom: 5px; }
 .trade-date { font-size: 10.5px; color: var(--text-tertiary); font-family: ui-monospace,"SF Mono",Menlo,Consolas,monospace; }
 .dir-badge { font-size: 9.5px; font-weight: 800; letter-spacing: 0.1em; padding: 2px 7px; border-radius: 5px; text-transform: uppercase; }
-.dir-badge.long  { background: rgba(107,227,164,0.15); color: var(--success); }
-.dir-badge.short { background: rgba(255,107,107,0.12); color: var(--danger); }
+.dir-badge.long      { background: rgba(107,227,164,0.15); color: var(--success); }
+.dir-badge.short     { background: rgba(255,107,107,0.12); color: var(--danger); }
+.dir-badge.breakeven { background: rgba(120,160,255,0.12); color: #78a0ff; }
 .trade-rr { font-family: ui-monospace,"SF Mono",Menlo,Consolas,monospace; font-size: 11px; font-weight: 700; }
 .trade-rr.pos { color: var(--success); } .trade-rr.neg { color: var(--danger); }
 .trade-pnl { font-family: ui-monospace,"SF Mono",Menlo,Consolas,monospace; font-size: 12px; font-weight: 800; }
@@ -1962,6 +1964,12 @@ input[type="range"]::-webkit-slider-thumb:hover { transform: scale(1.2); }
 .s-sup-opt { padding: 9px 12px; cursor: pointer; font-size: 13px; }
 .s-sup-opt:hover { background: rgba(255,255,255,0.06); }
 .s-add-form { position: relative; }
+.health-advice-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+@media (max-width: 480px) { .health-advice-grid { grid-template-columns: 1fr; } }
+.health-advice-card { background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.07); border-radius: 12px; padding: 14px; }
+.health-advice-icon { font-size: 20px; margin-bottom: 6px; }
+.health-advice-label { font-size: 10px; font-weight: 700; letter-spacing: 0.12em; text-transform: uppercase; color: var(--text-tertiary); margin-bottom: 5px; }
+.health-advice-text { font-size: 12px; color: var(--text-secondary); line-height: 1.55; }
 
 /* ══════════════════════════════════════════════
    HOME SCREEN
@@ -2179,8 +2187,9 @@ input[type="range"]::-webkit-slider-thumb:hover { transform: scale(1.2); }
 .trade-card-header { display: flex; align-items: center; gap: 10px; padding: 12px 14px; }
 .trade-card-date { font-size: 11px; color: var(--text-tertiary); }
 .trade-card-dir { font-size: 12px; font-weight: 700; padding: 2px 8px; border-radius: 6px; }
-.trade-card-dir.long { background: rgba(107,227,164,0.15); color: #6BE3A4; }
-.trade-card-dir.short { background: rgba(255,107,107,0.15); color: #FF6B6B; }
+.trade-card-dir.long      { background: rgba(107,227,164,0.15); color: #6BE3A4; }
+.trade-card-dir.short     { background: rgba(255,107,107,0.15); color: #FF6B6B; }
+.trade-card-dir.breakeven { background: rgba(120,160,255,0.12); color: #78a0ff; }
 .trade-card-pnl { margin-left: auto; font-size: 15px; font-weight: 700; }
 .trade-card-pnl.pos { color: #6BE3A4; }
 .trade-card-pnl.neg { color: #FF6B6B; }
@@ -2937,6 +2946,7 @@ button { font-family: inherit; }
             <div class="dir-toggle">
               <button class="dir-btn long active" data-dir="long">↑ Long</button>
               <button class="dir-btn short" data-dir="short">↓ Short</button>
+              <button class="dir-btn be" data-dir="breakeven">↔ Break Even</button>
             </div>
           </div>
           <div><label class="field-label" for="pnlInput">PnL ($)</label><input class="field-input" type="number" id="pnlInput" placeholder="0.00" step="1"></div>
@@ -3022,12 +3032,23 @@ button { font-family: inherit; }
       <div class="card">
         <div class="journal-header">
           <div class="card-title" style="margin-bottom:0">Trade Journal</div>
-          <button class="csv-btn" onclick="openCsvModal()">📥 Import CSV</button>
+          <button class="csv-btn" id="csvToggleBtn" onclick="csvTogglePanel()">📥 Import CSV</button>
           <div class="journal-filter" id="journalFilter" style="display:none">
             Filtered: <span id="filterDateLabel"></span>
             <button class="filter-clear" id="filterClear">× Clear</button>
           </div>
         </div>
+
+        <!-- Inline CSV import panel -->
+        <div id="csvInlinePanel" style="display:none;margin-bottom:16px">
+          <div class="csv-drop-zone" id="csvDropZone2" onclick="document.getElementById('csvFileInput2').click()">
+            <div style="font-size:28px">📂</div>
+            <div class="csv-drop-text">Click or drop a CSV file — date, pnl, direction, rr are auto-detected</div>
+            <input type="file" id="csvFileInput2" accept=".csv" style="display:none">
+          </div>
+          <div id="csvReviewArea"></div>
+        </div>
+
         <div id="tradeListEl"></div>
       </div>
     </div>
@@ -3815,6 +3836,17 @@ button { font-family: inherit; }
           </div>
         </div>
 
+        <!-- Health Integration -->
+        <div class="s-card" id="stackHealthSection">
+          <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px">
+            <div class="s-card-title" style="margin-bottom:0">🩺 Health Integration</div>
+            <button class="s-btn" id="stackHealthRefreshBtn" onclick="loadStackHealthAdvice(true)" style="font-size:11px;padding:6px 12px">↻ Refresh</button>
+          </div>
+          <div id="stackHealthAdvice">
+            <div style="color:var(--text-tertiary);font-size:12px;text-align:center;padding:20px 0">Loading health advice…</div>
+          </div>
+        </div>
+
       </div>
     </div>
   </div><!-- /page-stack -->
@@ -3971,26 +4003,6 @@ button { font-family: inherit; }
   </div>
 </div>
 
-<!-- CSV Import Modal -->
-<div class="csv-modal-overlay" id="csvModal">
-  <div class="csv-modal">
-    <div class="csv-modal-title">📥 Import Trades from CSV</div>
-    <p style="font-size:12px;color:var(--text-tertiary);margin-bottom:14px">
-      Expected columns: date, time, direction (long/short), pnl, rr, confluences, notes<br>
-      Date format: YYYY-MM-DD · Time format: HH:MM
-    </p>
-    <div class="csv-drop-zone" id="csvDropZone" onclick="document.getElementById('csvFileInput').click()">
-      <div style="font-size:32px">📂</div>
-      <div class="csv-drop-text">Click or drag & drop a CSV file here</div>
-      <input type="file" id="csvFileInput" accept=".csv" style="display:none">
-    </div>
-    <div class="csv-preview" id="csvPreview"></div>
-    <div style="display:flex;gap:10px">
-      <button class="faith-btn" style="flex:1;background:rgba(255,255,255,0.06)" onclick="closeCsvModal()">Cancel</button>
-      <button class="faith-btn" id="csvImportBtn" style="flex:1;display:none;background:rgba(74,158,255,0.2);color:var(--color-trading)" onclick="importCsv()">Import</button>
-    </div>
-  </div>
-</div>
 
 <script>
 /* ═══════════ SHARED CONSTANTS ═══════════ */
@@ -4019,7 +4031,7 @@ function storeListKeys(prefix) {
 
 /* ═══════════ TRADING STORAGE ═══════════ */
 function getTrades()    { try { return JSON.parse(localStorage.getItem(TRADE_KEY))  || []; } catch { return []; } }
-function saveTrades(t)  { localStorage.setItem(TRADE_KEY, JSON.stringify(t)); }
+function saveTrades(t)  { localStorage.setItem(TRADE_KEY, JSON.stringify(t)); localStorage.setItem('hub_trades', JSON.stringify(t)); }
 function getBadDays()   { try { return JSON.parse(localStorage.getItem(BAD_DAY_KEY)) || []; } catch { return []; } }
 function saveBadDays(d) { localStorage.setItem(BAD_DAY_KEY, JSON.stringify(d)); }
 function uid() { return Date.now().toString(36) + Math.random().toString(36).slice(2, 6); }
@@ -4482,6 +4494,7 @@ async function fetchGarminStats() {
     if (d.error && !d.synced && !d.fromCache) throw new Error(d.message || d.error);
     _cachedGarminData = d;
     localStorage.setItem('hub_garmin_cache', JSON.stringify(d));
+    if (d.recoveryScore != null) localStorage.setItem('hub_recovery_score', JSON.stringify({ score: d.recoveryScore, status: d.recoveryStatus, date: new Date().toISOString().slice(0,10) }));
     const fetchedTime = d.fetchedAt ? new Date(d.fetchedAt).toLocaleTimeString([], {hour:'2-digit',minute:'2-digit'}) : 'recently';
     const staleNote = d.stale ? ` (${d.cacheAge}m old)` : d.fromCache ? ' (cached)' : '';
     set('hcHrv',     d.hrv5MinHigh != null         ? d.hrv5MinHigh                     : null, 'hcHrvSub',     'ms overnight');
@@ -4584,6 +4597,16 @@ document.querySelectorAll('.dir-btn[data-dir]').forEach(btn => {
   btn.addEventListener('click', () => {
     document.querySelectorAll('.dir-btn[data-dir]').forEach(b => b.classList.remove('active'));
     btn.classList.add('active'); currentDir = btn.dataset.dir;
+    const pnlEl = document.getElementById('pnlInput');
+    const rrEl  = document.getElementById('rrInput');
+    if (currentDir === 'breakeven') {
+      pnlEl.value = '0'; rrEl.value = '0';
+      pnlEl.disabled = true; rrEl.disabled = true;
+    } else {
+      pnlEl.disabled = false; rrEl.disabled = false;
+      if (pnlEl.value === '0') pnlEl.value = '';
+      if (rrEl.value  === '0') rrEl.value  = '';
+    }
   });
 });
 
@@ -4639,6 +4662,8 @@ function clearForm() {
   document.querySelector('.dir-btn[data-dir="long"]').classList.add('active');
   document.querySelectorAll('[data-acct]').forEach(b => b.classList.remove('active'));
   document.querySelector('[data-acct="eval"]').classList.add('active');
+  document.getElementById('pnlInput').disabled = false;
+  document.getElementById('rrInput').disabled  = false;
   currentDir = 'long'; currentAcct = 'eval'; currentScreenshot = null;
   document.getElementById('screenshotInput').value = '';
   document.getElementById('screenshotPreview').style.display = 'none';
@@ -4822,7 +4847,7 @@ function renderTradeList() {
     const body = document.createElement('div'); body.className = 'trade-body';
     const meta = document.createElement('div'); meta.className = 'trade-meta';
     const date = document.createElement('span'); date.className = 'trade-date'; date.textContent = trade.date || '—'; meta.appendChild(date);
-    if (trade.direction) { const dir = document.createElement('span'); dir.className = `dir-badge ${trade.direction}`; dir.textContent = trade.direction === 'long' ? '↑ Long' : '↓ Short'; meta.appendChild(dir); }
+    if (trade.direction) { const dir = document.createElement('span'); dir.className = `dir-badge ${trade.direction}`; dir.textContent = trade.direction === 'long' ? '↑ Long' : trade.direction === 'short' ? '↓ Short' : '↔ BE'; meta.appendChild(dir); }
     if (trade.rr != null) { const rr = document.createElement('span'); rr.className = 'trade-rr ' + (trade.rr >= 0 ? 'pos' : 'neg'); rr.textContent = trade.rr.toFixed(2) + 'R'; meta.appendChild(rr); }
     if (trade.pnl != null) { const pnl = document.createElement('span'); pnl.className = 'trade-pnl ' + (trade.pnl >= 0 ? 'pos' : 'neg'); pnl.textContent = (trade.pnl >= 0 ? '+' : '') + '$' + trade.pnl.toFixed(2); meta.appendChild(pnl); }
     if (trade.mood) { const m = document.createElement('span'); m.style.cssText = 'font-size:13px;'; m.textContent = MOOD_EMOJI[trade.mood] || ''; meta.appendChild(m); }
@@ -5598,7 +5623,7 @@ function renderTradeCard(trade) {
   return `<div class="trade-card ${cls}" onclick="openReplayModal('${trade.id}')">
     <div class="trade-card-header">
       <span class="trade-card-date">${trade.date} ${trade.timeOfDay ? trade.timeOfDay : ''}</span>
-      <span class="trade-card-dir ${trade.direction}">${trade.direction === 'long' ? '↑ Long' : '↓ Short'}</span>
+      <span class="trade-card-dir ${trade.direction}">${trade.direction === 'long' ? '↑ Long' : trade.direction === 'short' ? '↓ Short' : '↔ BE'}</span>
       ${acct}
       ${trade.rr != null ? `<span class="trade-card-rr">${parseFloat(trade.rr).toFixed(1)}R</span>` : ''}
       ${disc}
@@ -5651,9 +5676,18 @@ document.getElementById('replayModal')?.addEventListener('click', e => { if (e.t
 const _origRenderCalendar = typeof renderCalendar === 'function' ? renderCalendar : null;
 
 /* ═══════════ CSV IMPORT ═══════════ */
-let _csvParsed = [];
-window.openCsvModal = function() { document.getElementById('csvModal')?.classList.add('open'); };
-window.closeCsvModal = function() { document.getElementById('csvModal')?.classList.remove('open'); _csvParsed = []; const p = document.getElementById('csvPreview'); if (p) p.innerHTML = ''; const btn = document.getElementById('csvImportBtn'); if (btn) btn.style.display = 'none'; };
+/* ═══════════ CSV IMPORT (inline, smart review) ═══════════ */
+let _csvDraft = [];
+
+window.csvTogglePanel = function() {
+  const panel = document.getElementById('csvInlinePanel');
+  const btn   = document.getElementById('csvToggleBtn');
+  if (!panel) return;
+  const open = panel.style.display === 'none';
+  panel.style.display = open ? 'block' : 'none';
+  btn.textContent = open ? '✕ Close Import' : '📥 Import CSV';
+  if (!open) { _csvDraft = []; document.getElementById('csvReviewArea').innerHTML = ''; }
+};
 
 function parseCsvLine(line) {
   const result = [];
@@ -5667,63 +5701,172 @@ function parseCsvLine(line) {
   return result;
 }
 
+const CSV_CONFS = ['STDV','OTE','Liq Sweep','15s IFVG','30s IFVG','1m IFVG','2m IFVG','3m IFVG','5m IFVG','HTF FVG'];
+
 function processCsvFile(file) {
   const reader = new FileReader();
   reader.onload = e => {
     const text = e.target.result;
     const lines = text.split(/\r?\n/).filter(l => l.trim());
-    if (lines.length < 2) { document.getElementById('csvPreview').textContent = 'File appears empty.'; return; }
-    const headers = parseCsvLine(lines[0]).map(h => h.toLowerCase().trim());
-    const trades = [];
+    const area = document.getElementById('csvReviewArea');
+    if (!area) return;
+    if (lines.length < 2) { area.innerHTML = '<p style="color:var(--danger);font-size:13px">File appears empty or has no data rows.</p>'; return; }
+
+    const headers = parseCsvLine(lines[0]).map(h => h.toLowerCase().replace(/[^a-z0-9]/g, ''));
+    _csvDraft = [];
+
     for (let i = 1; i < lines.length; i++) {
       const cols = parseCsvLine(lines[i]);
       const row = {};
-      headers.forEach((h, idx) => { row[h] = cols[idx] || ''; });
-      const dateVal = row['date'] || row['trade date'] || '';
-      const timeVal = row['time'] || row['trade time'] || '';
-      const dirVal = (row['direction'] || row['side'] || row['type'] || '').toLowerCase();
-      const pnlVal = parseFloat(row['pnl'] || row['profit'] || row['p&l'] || '0');
-      const rrVal = parseFloat(row['rr'] || row['r:r'] || row['reward risk'] || '');
+      headers.forEach((h, idx) => { row[h] = (cols[idx] || '').trim(); });
+
+      const get = (...keys) => { for (const k of keys) { const v = row[keys.find(x => row[x.replace(/[^a-z0-9]/g,'').toLowerCase()] !== undefined)?.replace(/[^a-z0-9]/g,'').toLowerCase()]; if (v) return v; const v2 = row[k.replace(/[^a-z0-9]/g,'').toLowerCase()]; if (v2) return v2; } return ''; };
+
+      const dateVal = row['date'] || row['tradedate'] || row['entrydate'] || '';
+      const timeVal = row['time'] || row['tradetime'] || row['entrytime'] || '';
+      const dirRaw  = (row['direction'] || row['side'] || row['type'] || row['bias'] || '').toLowerCase();
+      const pnlRaw  = row['pnl'] || row['profit'] || row['pl'] || row['pandl'] || row['netpnl'] || '';
+      const rrRaw   = row['rr'] || row['rr'] || row['riskreward'] || row['rewardrisk'] || '';
+      const confRaw = row['confluences'] || row['confluence'] || row['tags'] || '';
+      const notesRaw= row['notes'] || row['description'] || row['comments'] || row['comment'] || '';
+      const acctRaw = row['account'] || row['accounttype'] || '';
+
       if (!dateVal) continue;
-      trades.push({
+
+      const pnlVal = parseFloat(pnlRaw.replace(/[^0-9.\-]/g, ''));
+      const rrVal  = parseFloat(rrRaw.replace(/[^0-9.]/g, ''));
+      let dir = 'long';
+      if (dirRaw.includes('short') || dirRaw === 's' || dirRaw === 'sell') dir = 'short';
+      else if (dirRaw.includes('be') || dirRaw.includes('break')) dir = 'breakeven';
+      const csvConfs = confRaw ? confRaw.split(/[;,]/).map(s=>s.trim()).filter(Boolean) : [];
+
+      _csvDraft.push({
+        _idx: i - 1,
         id: uid(), date: dateVal, timeOfDay: timeVal,
-        direction: dirVal.includes('short') ? 'short' : 'long',
+        direction: dir,
         pnl: isNaN(pnlVal) ? null : pnlVal,
         rr: isNaN(rrVal) ? null : rrVal,
-        confluences: (row['confluences'] || row['confluence'] || '').split(';').map(s=>s.trim()).filter(Boolean),
-        description: row['notes'] || row['description'] || row['comments'] || '',
-        accountType: row['account'] || row['type'] || 'eval',
-        screenshot: null, garmin: null,
-        timestamp: Date.now(),
+        confluences: csvConfs,
+        description: notesRaw,
+        accountType: acctRaw.toLowerCase().includes('fund') ? 'funded' : 'eval',
+        screenshot: null, garmin: null, timestamp: Date.now(),
+        _hasDir: !!dirRaw, _hasPnl: !isNaN(pnlVal), _hasRR: !isNaN(rrVal),
+        _hasNotes: !!notesRaw, _hasConfs: csvConfs.length > 0,
       });
     }
-    _csvParsed = trades;
-    const prev = document.getElementById('csvPreview');
-    if (prev) prev.textContent = `Found ${trades.length} trades. Click Import to add them.`;
-    const btn = document.getElementById('csvImportBtn');
-    if (btn) btn.style.display = 'block';
+
+    if (!_csvDraft.length) { area.innerHTML = '<p style="color:var(--danger);font-size:13px">No valid rows found. Check your date column.</p>'; return; }
+    renderCsvReview();
   };
   reader.readAsText(file);
 }
 
-window.importCsv = function() {
-  if (!_csvParsed.length) return;
-  const existing = getTrades();
-  const allTrades = [...existing, ..._csvParsed];
-  saveTrades(allTrades);
-  closeCsvModal();
-  renderStats(); renderCalendar(); renderTradeList();
-  const prev = document.getElementById('csvPreview');
-  if (prev) prev.textContent = `✓ ${_csvParsed.length} trades imported.`;
+function renderCsvReview() {
+  const area = document.getElementById('csvReviewArea');
+  if (!area || !_csvDraft.length) return;
+  const missingFields = _csvDraft.filter(t => !t._hasDir || !t._hasPnl || !t._hasRR || !t._hasNotes).length;
+
+  area.innerHTML = `
+    <div style="margin:12px 0 8px;font-size:12px;color:var(--text-secondary)">
+      <strong style="color:var(--text-primary)">${_csvDraft.length} trades found.</strong>
+      ${missingFields ? ` <span style="color:var(--warning)">${missingFields} need your input below.</span>` : ' All fields auto-filled ✓'}
+    </div>
+    <div id="csvTradeCards" style="display:flex;flex-direction:column;gap:10px;max-height:500px;overflow-y:auto;padding-right:4px"></div>
+    <div style="display:flex;gap:10px;margin-top:14px">
+      <button class="save-btn" onclick="csvConfirmImport()" style="flex:1">✓ Import ${_csvDraft.length} Trade${_csvDraft.length > 1 ? 's' : ''}</button>
+      <button style="flex:0 0 auto;padding:12px 16px;border-radius:10px;border:1px solid rgba(255,255,255,0.1);background:rgba(255,255,255,0.04);color:var(--text-secondary);cursor:pointer;font-size:13px" onclick="csvTogglePanel()">Cancel</button>
+    </div>
+  `;
+
+  const container = document.getElementById('csvTradeCards');
+  _csvDraft.forEach((t, idx) => {
+    const card = document.createElement('div');
+    card.style.cssText = 'background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.07);border-radius:12px;padding:14px';
+    const dirColor = t.direction === 'long' ? '#6BE3A4' : t.direction === 'short' ? '#FF6B6B' : '#78a0ff';
+    const dirLabel = t.direction === 'long' ? '↑ Long' : t.direction === 'short' ? '↓ Short' : '↔ BE';
+    const pnlColor = t.pnl > 0 ? '#6BE3A4' : t.pnl < 0 ? '#FF6B6B' : 'var(--text-tertiary)';
+
+    card.innerHTML = `
+      <div style="display:flex;align-items:center;gap:10px;margin-bottom:10px;flex-wrap:wrap">
+        <span style="font-size:12px;font-weight:700;color:var(--text-primary)">${t.date}</span>
+        ${t.timeOfDay ? `<span style="font-size:11px;color:var(--text-tertiary)">${t.timeOfDay}</span>` : ''}
+        <span style="font-size:11px;font-weight:700;color:${dirColor};background:${dirColor}22;padding:2px 8px;border-radius:5px">${dirLabel}</span>
+        ${t._hasPnl ? `<span style="font-size:12px;font-weight:700;color:${pnlColor}">${t.pnl >= 0 ? '+' : ''}$${t.pnl}</span>` : ''}
+        ${t._hasRR  ? `<span style="font-size:11px;color:var(--text-tertiary)">R:R ${t.rr}</span>` : ''}
+      </div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px">
+        ${!t._hasDir ? `<div><label style="font-size:10px;color:var(--text-tertiary);text-transform:uppercase;letter-spacing:0.1em;display:block;margin-bottom:4px">Direction *</label>
+          <div style="display:flex;gap:6px">
+            <button class="dir-btn long ${t.direction==='long'?'active':''}" style="flex:1;font-size:11px;padding:6px" onclick="csvSetDir(${idx},'long',this)">↑ Long</button>
+            <button class="dir-btn short ${t.direction==='short'?'active':''}" style="flex:1;font-size:11px;padding:6px" onclick="csvSetDir(${idx},'short',this)">↓ Short</button>
+            <button class="dir-btn be ${t.direction==='breakeven'?'active':''}" style="flex:1;font-size:11px;padding:6px" onclick="csvSetDir(${idx},'breakeven',this)">↔ BE</button>
+          </div></div>` : ''}
+        ${!t._hasPnl ? `<div><label style="font-size:10px;color:var(--text-tertiary);text-transform:uppercase;letter-spacing:0.1em;display:block;margin-bottom:4px">PnL ($) *</label>
+          <input class="field-input" type="number" step="1" placeholder="e.g. 250" style="width:100%;box-sizing:border-box" oninput="_csvDraft[${idx}].pnl=parseFloat(this.value)||null"></div>` : ''}
+        ${!t._hasRR ? `<div><label style="font-size:10px;color:var(--text-tertiary);text-transform:uppercase;letter-spacing:0.1em;display:block;margin-bottom:4px">R:R</label>
+          <input class="field-input" type="number" step="0.1" min="0" placeholder="e.g. 2.5" style="width:100%;box-sizing:border-box" oninput="_csvDraft[${idx}].rr=parseFloat(this.value)||null"></div>` : ''}
+      </div>
+      ${!t._hasConfs ? `<div style="margin-top:8px">
+        <label style="font-size:10px;color:var(--text-tertiary);text-transform:uppercase;letter-spacing:0.1em;display:block;margin-bottom:6px">Confluences</label>
+        <div style="display:flex;flex-wrap:wrap;gap:5px">${CSV_CONFS.map(c=>`<button onclick="csvToggleConf(${idx},'${c}',this)" style="padding:4px 9px;border-radius:6px;border:1px solid rgba(255,255,255,0.1);background:rgba(255,255,255,0.03);color:var(--text-tertiary);font-size:11px;cursor:pointer;transition:all 0.15s">${c}</button>`).join('')}</div>
+      </div>` : `<div style="margin-top:6px;font-size:11px;color:var(--text-tertiary)">Confluences: ${t.confluences.join(', ')}</div>`}
+      <div style="margin-top:8px">
+        <label style="font-size:10px;color:var(--text-tertiary);text-transform:uppercase;letter-spacing:0.1em;display:block;margin-bottom:4px">Notes${!t._hasNotes?' *':''}</label>
+        <textarea class="field-input" rows="2" style="width:100%;box-sizing:border-box;resize:none" placeholder="Setup description, lessons learned…" oninput="_csvDraft[${idx}].description=this.value">${t.description}</textarea>
+      </div>
+      <div style="margin-top:8px;display:flex;gap:8px;align-items:center">
+        <label style="font-size:10px;color:var(--text-tertiary);text-transform:uppercase;letter-spacing:0.1em">Mood</label>
+        <input type="range" min="1" max="10" value="${t.mood||5}" style="flex:1" oninput="_csvDraft[${idx}].mood=parseInt(this.value);this.nextElementSibling.textContent=this.value">
+        <span style="font-size:12px;color:var(--text-secondary);min-width:14px">${t.mood||5}</span>
+      </div>
+    `;
+    container.appendChild(card);
+  });
+}
+
+window.csvSetDir = function(idx, dir, btn) {
+  _csvDraft[idx].direction = dir;
+  const parent = btn.parentElement;
+  parent.querySelectorAll('button').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
 };
 
-const csvInput = document.getElementById('csvFileInput');
-if (csvInput) csvInput.addEventListener('change', e => { if (e.target.files[0]) processCsvFile(e.target.files[0]); });
-const csvDrop = document.getElementById('csvDropZone');
-if (csvDrop) {
-  csvDrop.addEventListener('dragover', e => { e.preventDefault(); csvDrop.classList.add('drag-over'); });
-  csvDrop.addEventListener('dragleave', () => csvDrop.classList.remove('drag-over'));
-  csvDrop.addEventListener('drop', e => { e.preventDefault(); csvDrop.classList.remove('drag-over'); if (e.dataTransfer.files[0]) processCsvFile(e.dataTransfer.files[0]); });
+window.csvToggleConf = function(idx, conf, btn) {
+  const confs = _csvDraft[idx].confluences;
+  const ci = confs.indexOf(conf);
+  if (ci === -1) {
+    confs.push(conf);
+    btn.style.background = 'rgba(74,158,255,0.15)';
+    btn.style.borderColor = 'rgba(74,158,255,0.4)';
+    btn.style.color = 'var(--color-trading)';
+  } else {
+    confs.splice(ci, 1);
+    btn.style.background = 'rgba(255,255,255,0.03)';
+    btn.style.borderColor = 'rgba(255,255,255,0.1)';
+    btn.style.color = 'var(--text-tertiary)';
+  }
+};
+
+window.csvConfirmImport = function() {
+  if (!_csvDraft.length) return;
+  const clean = _csvDraft.map(({ _idx, _hasDir, _hasPnl, _hasRR, _hasNotes, _hasConfs, ...t }) => ({ ...t, mood: t.mood || 5, confidence: t.confidence || 5 }));
+  const all = [...getTrades(), ...clean];
+  saveTrades(all);
+  renderStats(); renderCalendar(); renderTradeList();
+  _csvDraft = [];
+  const area = document.getElementById('csvReviewArea');
+  if (area) area.innerHTML = `<div style="padding:14px;text-align:center;color:var(--success);font-weight:700;font-size:14px">✓ ${clean.length} trades imported!</div>`;
+  const panel = document.getElementById('csvInlinePanel');
+  setTimeout(() => { if (panel) panel.style.display = 'none'; document.getElementById('csvToggleBtn').textContent = '📥 Import CSV'; }, 2000);
+};
+
+const csvInput2 = document.getElementById('csvFileInput2');
+if (csvInput2) csvInput2.addEventListener('change', e => { if (e.target.files[0]) processCsvFile(e.target.files[0]); });
+const csvDrop2 = document.getElementById('csvDropZone2');
+if (csvDrop2) {
+  csvDrop2.addEventListener('dragover', e => { e.preventDefault(); csvDrop2.classList.add('drag-over'); });
+  csvDrop2.addEventListener('dragleave', () => csvDrop2.classList.remove('drag-over'));
+  csvDrop2.addEventListener('drop', e => { e.preventDefault(); csvDrop2.classList.remove('drag-over'); if (e.dataTransfer.files[0]) processCsvFile(e.dataTransfer.files[0]); });
 }
 
 /* ═══════════ FAITH: GRATITUDE LOG ═══════════ */
@@ -8687,6 +8830,8 @@ const CONFIG = {
     const log = wTodayLog();
     log.water.push({ ml, ts: Date.now() });
     wSaveTodayLog(log);
+    const totalMl = log.water.reduce((s, e) => s + e.ml, 0);
+    localStorage.setItem('hub_water_today', String(totalMl));
     wRender();
   };
 
@@ -9006,8 +9151,124 @@ const CONFIG = {
     _sInited = true;
     sInitSearch();
     sRender();
+    loadStackHealthAdvice(false);
   };
 })();
+
+/* ═══════════ DAILY STACK: HEALTH INTEGRATION ═══════════ */
+async function loadStackHealthAdvice(forceRefresh) {
+  const today = new Date().toISOString().slice(0, 10);
+  const cacheKey = 'stack_health_advice_' + today;
+  const el = document.getElementById('stackHealthAdvice');
+  if (!el) return;
+
+  if (!forceRefresh) {
+    const cached = localStorage.getItem(cacheKey);
+    if (cached) { try { renderHealthAdviceCards(JSON.parse(cached)); return; } catch {} }
+  }
+
+  el.innerHTML = '<div style="color:var(--text-tertiary);font-size:12px;text-align:center;padding:20px 0">Analysing your health data…</div>';
+
+  const garmin = await getGarminData().catch(() => null);
+
+  // Water today from po_water_v1
+  let waterMl = 0;
+  try {
+    const wd = JSON.parse(localStorage.getItem('po_water_v1') || '{}');
+    const todayLog = (wd.logs || {})[today] || { water: [] };
+    waterMl = todayLog.water.reduce((s, e) => s + e.ml, 0);
+    localStorage.setItem('hub_water_today', String(waterMl));
+  } catch {}
+
+  // Gym today from po_coach_v1
+  let gymSummary = 'No workout logged today';
+  try {
+    const pcRaw = localStorage.getItem('po_coach_v1');
+    if (pcRaw) {
+      const pcData = JSON.parse(pcRaw);
+      const todaySess = (pcData.days || {})[today];
+      if (todaySess) {
+        gymSummary = `Trained today (${today}): ${Object.keys(todaySess).length} exercises logged`;
+        localStorage.setItem('hub_gym_today', JSON.stringify({ date: today, exercises: Object.keys(todaySess).length }));
+      }
+    }
+  } catch {}
+
+  // Supplement list
+  let supplementList = 'not tracked';
+  try {
+    const items = JSON.parse(localStorage.getItem('stack:items') || '[]');
+    if (items.length) supplementList = items.map(i => `${i.name}${i.dose ? ' ' + i.dose : ''} (${i.window})`).join(', ');
+  } catch {}
+
+  // Recovery score write to shared key
+  if (garmin && garmin.recoveryScore != null) {
+    localStorage.setItem('hub_recovery_score', JSON.stringify({ score: garmin.recoveryScore, status: garmin.recoveryStatus, date: today }));
+  }
+
+  const waterGoal = (() => { try { return JSON.parse(localStorage.getItem('po_water_v1') || '{}').config?.goalMl || 2500; } catch { return 2500; } })();
+  const waterPct = Math.round((waterMl / waterGoal) * 100);
+
+  const g = garmin && (garmin.synced || garmin.fromCache) ? garmin : null;
+  const context = [
+    g ? `HRV: ${g.hrv5MinHigh ?? '—'}ms` : 'HRV: unavailable',
+    g ? `Sleep score: ${g.sleepScore ?? '—'}/100, sleep duration: ${g.sleepDurationHours ?? '—'}h` : 'Sleep: unavailable',
+    g ? `Body Battery: ${g.bodyBattery ?? '—'}/100` : 'Body Battery: unavailable',
+    g ? `Recovery score: ${g.recoveryScore ?? '—'}/100 (${g.recoveryStatus ?? '—'})` : 'Recovery: unavailable',
+    g ? `Resting HR: ${g.heartRateResting ?? '—'} bpm` : '',
+    g ? `Steps today: ${g.steps ?? '—'}` : '',
+    g ? `Stress avg: ${g.stressAvg ?? '—'}` : '',
+    `Water intake today: ${waterMl}ml of ${waterGoal}ml goal (${waterPct}%)`,
+    `Workout today: ${gymSummary}`,
+    `Current supplements: ${supplementList}`,
+  ].filter(Boolean).join('\n');
+
+  const prompt = `You are a precision health and performance coach. Based on today's biometric data, give personalised advice in exactly this JSON format (no markdown, no extra text):
+{"supplements":"advice here","hydration":"advice here","nutrition":"advice here","recovery":"advice here"}
+
+Today's data:
+${context}
+
+Rules:
+- Supplements: Recommend timing or additions based on recovery score and workout. If HRV < 40 suggest magnesium glycinate. If body battery < 30 suggest B12 or electrolytes. If workout logged, advise pre/post workout supplements from their stack.
+- Hydration: Flag specifically if water is below 50% of goal. Give ml target for rest of day.
+- Nutrition: Tailor to workout intensity and recovery score. Be specific about macros or meal timing.
+- Recovery: Based on sleep score, HRV and body battery. If poor sleep, mention it directly. Keep each field to 1-2 sentences.`;
+
+  try {
+    const res = await fetch('/api/claude', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ prompt, max_tokens: 600 })
+    });
+    const data = await res.json();
+    const raw = data.analysis || data.result || '{}';
+    const match = raw.match(/\{[\s\S]*\}/);
+    const advice = JSON.parse(match ? match[0] : raw);
+    localStorage.setItem(cacheKey, JSON.stringify(advice));
+    renderHealthAdviceCards(advice);
+  } catch {
+    el.innerHTML = '<div style="color:var(--text-tertiary);font-size:12px;text-align:center;padding:12px">Could not load advice. Check connection.</div>';
+  }
+}
+
+function renderHealthAdviceCards(advice) {
+  const el = document.getElementById('stackHealthAdvice');
+  if (!el) return;
+  const cards = [
+    { key: 'supplements', icon: '💊', label: 'Supplements' },
+    { key: 'hydration',   icon: '💧', label: 'Hydration'   },
+    { key: 'nutrition',   icon: '🥗', label: 'Nutrition'   },
+    { key: 'recovery',    icon: '🔋', label: 'Recovery'    },
+  ];
+  el.innerHTML = `<div class="health-advice-grid">${
+    cards.map(c => `<div class="health-advice-card">
+      <div class="health-advice-icon">${c.icon}</div>
+      <div class="health-advice-label">${c.label}</div>
+      <div class="health-advice-text">${escHtml(advice[c.key] || '—')}</div>
+    </div>`).join('')
+  }</div>`;
+}
 
 /* ═══════════ RUNNING TAB ═══════════ */
 const RACE_DATE = new Date('2026-09-27T00:00:00');
