@@ -9427,10 +9427,24 @@ async function initRunning() {
     return obj;
   }
 
-  function applyRemote(data) {
+  function applyRemote(data, isBootSync) {
     let goalsChanged = false;
     for (const k of Object.keys(data)) {
       if (!isSynced(k)) continue;
+      // On boot sync: don't overwrite local data with older/smaller remote data
+      if (isBootSync) {
+        const localRaw = localStorage.getItem(k);
+        if (localRaw) {
+          try {
+            const local = JSON.parse(localRaw);
+            const remote = data[k];
+            // For arrays: keep whichever has more entries
+            if (Array.isArray(local) && Array.isArray(remote) && local.length >= remote.length) continue;
+            // For glitchy_accounts object: keep whichever has more accounts
+            if (k === 'glitchy_accounts' && local.accounts && remote.accounts && local.accounts.length >= remote.accounts.length) continue;
+          } catch {}
+        }
+      }
       const val = typeof data[k] === 'string' ? data[k] : JSON.stringify(data[k]);
       _origSetItem(k, val);
       if (k.startsWith('goals:')) goalsChanged = true;
@@ -9510,7 +9524,7 @@ async function initRunning() {
       if (error && error.code !== 'PGRST116') throw error;
       if (data && data.value && Object.keys(data.value).length > 0) {
         lastSyncedJson = JSON.stringify(data.value);
-        applyRemote(data.value);
+        applyRemote(data.value, true);
       } else {
         const local = gatherState();
         if (Object.keys(local).length > 0) {
