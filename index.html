@@ -4536,12 +4536,10 @@ let _cachedGarminData = null;
 
 async function fetchGarminStats() {
   function set(id, val, subId, sub) {
-    const el = document.getElementById(id);
-    if (!el) return;
-    el.classList.remove('loading'); el.textContent = val ?? '—';
-    if (subId && sub != null) { const s = document.getElementById(subId); if (s) s.textContent = sub; }
+    document.querySelectorAll('#' + id).forEach(el => { el.classList.remove('loading'); el.textContent = val ?? '—'; });
+    if (subId && sub != null) { document.querySelectorAll('#' + subId).forEach(s => s.textContent = sub); }
   }
-  function setError(id) { const el = document.getElementById(id); if (!el) return; el.classList.remove('loading'); el.classList.add('error'); el.textContent = 'N/A'; }
+  function setError(id) { document.querySelectorAll('#' + id).forEach(el => { el.classList.remove('loading'); el.classList.add('error'); el.textContent = 'N/A'; }); }
 
   // Use in-memory or localStorage cache if it is fresh enough
   if (_cachedGarminData) {
@@ -4555,8 +4553,7 @@ async function fetchGarminStats() {
       set('hcSteps',   d.steps != null            ? d.steps.toLocaleString()   : null, 'hcStepsSub',   'today');
       set('hcHr',      d.heartRateResting != null ? d.heartRateResting         : null, 'hcHrSub',      'bpm');
       updateRecoveryBadge('healthRecoveryBadge', 'healthRecoveryText', d);
-      const statusEl = document.getElementById('healthStatus');
-      if (statusEl) statusEl.textContent = 'Synced (cached)';
+      document.querySelectorAll('#healthStatus').forEach(el => el.textContent = 'Synced (cached)');
       return;
     }
   }
@@ -4577,22 +4574,20 @@ async function fetchGarminStats() {
     set('hcSteps',   d.steps != null                ? d.steps.toLocaleString()          : null, 'hcStepsSub',   'today');
     set('hcHr',      d.heartRateResting != null     ? d.heartRateResting                : null, 'hcHrSub',      'bpm');
     updateRecoveryBadge('healthRecoveryBadge', 'healthRecoveryText', d);
-    const statusEl = document.getElementById('healthStatus');
-    if (statusEl) {
+    document.querySelectorAll('#healthStatus').forEach(statusEl => {
       statusEl.style.color = d.stale ? 'var(--warning)' : '';
       statusEl.textContent = d.synced ? `Synced at ${fetchedTime}${staleNote}` :
         (d.message || 'Open Garmin Connect app on your phone and sync your watch.');
-    }
+    });
     if (!d.synced) ['hcHrv','hcSleep','hcBattery','hcSteps','hcHr'].forEach(setError);
   } catch (err) {
     ['hcHrv','hcSleep','hcBattery','hcSteps','hcHr'].forEach(setError);
-    const statusEl = document.getElementById('healthStatus');
-    if (statusEl) {
+    document.querySelectorAll('#healthStatus').forEach(statusEl => {
       statusEl.style.color = 'var(--danger)';
       statusEl.textContent = err.message.includes('404') || err.message.includes('Failed to fetch')
-        ? 'Garmin function not reachable — deploy to Netlify first.'
+        ? 'Garmin function not reachable — check Vercel deployment.'
         : err.message || 'Garmin error — open Garmin Connect app and sync your watch.';
-    }
+    });
   }
 }
 async function getGarminData() {
