@@ -2462,6 +2462,33 @@ button { font-family: inherit; }
 .run-entry-date { font-size:11px; color:var(--text-tertiary); margin-left:auto; }
 .run-progress-bar { background:rgba(255,255,255,0.07); border-radius:99px; height:8px; overflow:hidden; margin-top:8px; }
 .run-progress-fill { height:100%; border-radius:99px; background:var(--color-goals); transition:width 0.6s cubic-bezier(0.22,1,0.36,1); }
+.run-recovery-grid { display:grid; grid-template-columns:repeat(3,1fr); gap:8px; margin-bottom:12px; }
+.run-recovery-stat { background:rgba(255,255,255,0.04); border-radius:10px; padding:10px 12px; text-align:center; }
+.run-recovery-val { font-size:22px; font-weight:800; letter-spacing:-0.03em; }
+.run-recovery-lbl { font-size:9px; font-weight:700; letter-spacing:0.12em; text-transform:uppercase; color:var(--text-tertiary); margin-top:2px; }
+.run-readiness { display:flex; align-items:flex-start; gap:10px; padding:10px 14px; border-radius:10px; margin-top:4px; }
+.run-readiness-label { font-size:13px; font-weight:700; }
+.run-readiness-sub { font-size:11px; color:var(--text-tertiary); margin-top:2px; }
+.run-predict-grid { display:grid; grid-template-columns:1fr 1fr; gap:8px; }
+.run-predict-item { background:rgba(255,255,255,0.04); border-radius:10px; padding:12px 14px; }
+.run-predict-dist { font-size:10px; font-weight:700; letter-spacing:0.1em; text-transform:uppercase; color:var(--text-tertiary); margin-bottom:4px; }
+.run-predict-time { font-size:22px; font-weight:800; letter-spacing:-0.03em; color:var(--text-primary); }
+.run-predict-pace { font-size:11px; color:var(--text-secondary); margin-top:1px; }
+.run-predict-bar { height:3px; border-radius:2px; background:rgba(255,255,255,0.07); margin-top:8px; overflow:hidden; }
+.run-predict-bar-fill { height:100%; border-radius:2px; background:var(--color-goals); transition:width 0.8s cubic-bezier(0.22,1,0.36,1); }
+.run-next-inner { padding:12px 14px; border-radius:10px; }
+.run-next-type { font-size:11px; font-weight:700; text-transform:uppercase; letter-spacing:0.1em; margin-bottom:4px; }
+.run-next-dist { font-size:24px; font-weight:800; letter-spacing:-0.03em; color:var(--text-primary); }
+.run-next-note { font-size:12px; color:var(--text-secondary); margin-top:4px; }
+.run-next-remain { font-size:11px; color:var(--text-tertiary); margin-top:6px; }
+.run-entry-v2 { padding:12px 0; border-bottom:1px solid rgba(255,255,255,0.05); }
+.run-entry-v2:last-child { border-bottom:none; padding-bottom:0; }
+.run-entry-v2-top { display:flex; align-items:baseline; gap:8px; margin-bottom:5px; }
+.run-entry-v2-dist { font-size:20px; font-weight:800; letter-spacing:-0.03em; color:var(--text-primary); }
+.run-entry-v2-name { font-size:12px; color:var(--text-secondary); flex:1; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+.run-entry-v2-date { font-size:11px; color:var(--text-tertiary); white-space:nowrap; }
+.run-entry-v2-chips { display:flex; gap:10px; flex-wrap:wrap; }
+.run-entry-v2-chip { font-size:11px; color:var(--text-tertiary); }
 
 /* ══ CHANGE 1: Home dashboard grid (desktop) ══ */
 @media (min-width: 768px) {
@@ -3994,45 +4021,59 @@ button { font-family: inherit; }
   <div class="page-section" id="page-running">
     <h1 class="dash-title">🏃 Running</h1>
 
-    <!-- Half marathon countdown -->
+    <!-- Race hero: countdown + predicted HM time -->
     <div class="run-hero">
       <div class="run-countdown-num" id="runCountdownDays">—</div>
-      <div class="run-countdown-label">days until half marathon · Sep 27, 2026</div>
+      <div class="run-countdown-label">days to Half Marathon · Sep 27, 2026</div>
       <div style="font-size:12px;color:var(--text-tertiary);margin-top:4px" id="runCountdownWeeks"></div>
+      <div id="runHeroPredict" style="margin-top:10px;font-size:15px;font-weight:700;color:var(--color-goals);min-height:22px"></div>
     </div>
 
-    <!-- Stats row -->
-    <div class="run-stat-row">
-      <div class="run-stat"><div class="run-stat-val" id="runStatWeekly">—</div><div class="run-stat-lbl">This week km</div></div>
-      <div class="run-stat"><div class="run-stat-val" id="runStatTarget">—</div><div class="run-stat-lbl">Week target km</div></div>
-      <div class="run-stat"><div class="run-stat-val" id="runStatTotal">—</div><div class="run-stat-lbl">Total runs</div></div>
-    </div>
-
-    <!-- Weekly progress bar -->
+    <!-- Recovery & Readiness (Garmin) -->
     <div class="run-card">
-      <div class="run-card-title">Weekly Progress</div>
-      <div style="font-size:12px;color:var(--text-secondary);margin-bottom:8px">
-        <span id="runWeeklyActual">0</span> km of <span id="runWeeklyTargetLabel">—</span> km target
+      <div class="run-card-title">🩺 Recovery &amp; Readiness</div>
+      <div id="runRecoveryContent"><div style="color:var(--text-tertiary);font-size:12px">Loading Garmin data…</div></div>
+    </div>
+
+    <!-- This Week (Strava) -->
+    <div class="run-card">
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px">
+        <div class="run-card-title" style="margin-bottom:0">📅 This Week</div>
+        <span style="font-size:10px;color:var(--text-tertiary)" id="runStravaStatus"></span>
+      </div>
+      <div class="run-stat-row" style="margin-bottom:14px">
+        <div class="run-stat"><div class="run-stat-val" id="runStatWeekly">—</div><div class="run-stat-lbl">km run</div></div>
+        <div class="run-stat"><div class="run-stat-val" id="runStatTarget">—</div><div class="run-stat-lbl">target</div></div>
+        <div class="run-stat"><div class="run-stat-val" id="runStatYTD">—</div><div class="run-stat-lbl">year km</div></div>
       </div>
       <div class="run-progress-bar"><div class="run-progress-fill" id="runWeeklyBar" style="width:0%"></div></div>
-    </div>
-
-    <!-- Recent runs (from Garmin) -->
-    <div class="run-card">
-      <div class="run-card-title">Recent Runs (Garmin)</div>
-      <div id="runRecentList"><div style="font-size:12px;color:var(--text-tertiary)">Loading from Garmin…</div></div>
-      <div style="font-size:11px;color:var(--text-tertiary);margin-top:8px" id="runSyncStatus"></div>
-    </div>
-
-    <!-- Personal bests -->
-    <div class="run-card">
-      <div class="run-card-title">Personal Bests</div>
-      <div class="run-stat-row" style="margin-bottom:0">
-        <div class="run-stat"><div class="run-stat-val" id="pbFiveK">—</div><div class="run-stat-lbl">5K</div></div>
-        <div class="run-stat"><div class="run-stat-val" id="pbTenK">—</div><div class="run-stat-lbl">10K</div></div>
-        <div class="run-stat"><div class="run-stat-val" id="pbLongest">—</div><div class="run-stat-lbl">Longest run</div></div>
+      <div style="font-size:11px;color:var(--text-tertiary);margin-top:6px;display:flex;justify-content:space-between">
+        <span><span id="runWeeklyActual">0</span>km done</span>
+        <span id="runWeeklyTargetLabel"></span>
       </div>
     </div>
+
+    <!-- Next Run Recommendation -->
+    <div class="run-card">
+      <div class="run-card-title">📋 Next Run</div>
+      <div id="runNextRunContent"><div style="color:var(--text-tertiary);font-size:12px">Calculating…</div></div>
+    </div>
+
+    <!-- Race Predictions (Riegel) -->
+    <div class="run-card">
+      <div class="run-card-title">🎯 Race Predictions</div>
+      <div id="runPredictions"><div style="color:var(--text-tertiary);font-size:12px">Need Strava runs for predictions…</div></div>
+    </div>
+
+    <!-- Recent Runs (Strava) -->
+    <div class="run-card">
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px">
+        <div class="run-card-title" style="margin-bottom:0">📊 Recent Runs</div>
+        <span style="font-size:10px;color:var(--accent);background:rgba(88,166,255,0.1);padding:2px 8px;border-radius:6px">Strava</span>
+      </div>
+      <div id="runRecentList"><div style="font-size:12px;color:var(--text-tertiary)">Loading from Strava…</div></div>
+    </div>
+
   </div><!-- /page-running -->
 
 </div><!-- /root-wrap -->
@@ -9454,17 +9495,29 @@ function renderHealthAdviceCards(advice) {
 
 /* ═══════════ RUNNING TAB ═══════════ */
 const RACE_DATE = new Date('2026-09-27T00:00:00');
-const RUN_KEY   = 'hub_running_manual';
-let _runInited  = false;
+let _stravaCache = null;
+
+function runFormatPace(secsPerKm) {
+  if (!secsPerKm || secsPerKm <= 0) return '—';
+  const m = Math.floor(secsPerKm / 60), s = Math.round(secsPerKm % 60);
+  return `${m}:${String(s).padStart(2, '0')}/km`;
+}
+
+function runFormatDur(mins) {
+  if (!mins) return '—';
+  if (mins < 60) return `${Math.round(mins)}min`;
+  const h = Math.floor(mins / 60), m = Math.round(mins % 60);
+  return `${h}h${String(m).padStart(2,'0')}`;
+}
 
 function runCalcCountdown() {
   const now = new Date();
   const diff = RACE_DATE - now;
-  const days  = Math.max(0, Math.floor(diff / 86400000));
+  const days = Math.max(0, Math.floor(diff / 86400000));
   const weeks = Math.floor(days / 7);
-  const el = document.getElementById('runCountdownDays');
+  const dEl = document.getElementById('runCountdownDays');
   const wEl = document.getElementById('runCountdownWeeks');
-  if (el) el.textContent = days;
+  if (dEl) dEl.textContent = days;
   if (wEl) wEl.textContent = weeks > 0 ? `${weeks} weeks remaining` : 'Race week!';
 }
 
@@ -9472,97 +9525,276 @@ function runCalcWeeklyTarget() {
   const now = new Date();
   const totalWeeks = Math.ceil((RACE_DATE - new Date('2026-05-19')) / 604800000);
   const weeksLeft = Math.max(1, Math.ceil((RACE_DATE - now) / 604800000));
-  // Beginner-intermediate plan: ramp from 20km/week to 50km/week over 18 weeks, taper last 2
-  const weekNum = Math.max(1, totalWeeks - weeksLeft + 1);
-  if (weekNum >= totalWeeks - 2) return 25; // taper
-  const km = Math.min(50, Math.round(20 + (weekNum / (totalWeeks - 3)) * 30));
-  return km;
+  const weeksIn = totalWeeks - weeksLeft;
+  const phase = weeksIn / totalWeeks;
+  if (weeksLeft <= 3) return Math.round(40 * (weeksLeft / 3));
+  return Math.round(20 + 20 * Math.min(1, phase * 1.4));
 }
 
 function runGetMondayISO(date) {
   const d = new Date(date);
   const day = d.getDay();
-  const diff = (day === 0 ? -6 : 1) - day;
-  d.setDate(d.getDate() + diff);
+  d.setDate(d.getDate() + (day === 0 ? -6 : 1) - day);
   return d.toISOString().slice(0, 10);
 }
 
-function runFormatPace(secsPerKm) {
-  if (!secsPerKm) return '—';
-  const m = Math.floor(secsPerKm / 60);
-  const s = Math.round(secsPerKm % 60);
-  return `${m}:${String(s).padStart(2, '0')} /km`;
+// Riegel: T2 = T1 * (D2/D1)^1.06
+function riegelPredict(refDistKm, refPaceSecs, targetDistKm) {
+  return refPaceSecs * refDistKm * Math.pow(targetDistKm / refDistKm, 1.06) / 60;
+}
+
+function renderRunRecovery(garmin, lastRun) {
+  const el = document.getElementById('runRecoveryContent');
+  if (!el) return;
+
+  const score   = garmin?.recoveryScore ?? null;
+  const battery = garmin?.bodyBattery  ?? null;
+  const hrv     = garmin?.hrv5MinHigh  ?? null;
+
+  let daysSince = null;
+  if (lastRun?.date) {
+    daysSince = Math.floor((Date.now() - new Date(lastRun.date).getTime()) / 86400000);
+  }
+
+  // Recovery days needed from last run effort
+  let recoveryDays = 0;
+  if (lastRun) {
+    const base = lastRun.distanceKm >= 18 ? 3 : lastRun.distanceKm >= 12 ? 2 : lastRun.distanceKm >= 6 ? 1 : 0;
+    const effortMult = (lastRun.heartRateAvg || 0) > 170 ? 1.4 : (lastRun.heartRateAvg || 0) > 155 ? 1.2 : 1;
+    const batMult = battery != null ? (battery < 30 ? 1.5 : battery < 50 ? 1.2 : 1) : 1;
+    recoveryDays = Math.ceil(base * effortMult * batMult);
+  }
+  const daysUntilReady = Math.max(0, recoveryDays - (daysSince ?? recoveryDays));
+
+  let label, sub, accentColor, bgColor;
+  const effectiveScore = score ?? (battery != null ? battery : 60);
+  if (effectiveScore >= 75 && daysUntilReady === 0) {
+    label = '✅ Ready to train hard'; sub = 'HRV and battery are high — go for it';
+    accentColor = '#68d391'; bgColor = 'rgba(104,211,145,0.1)';
+  } else if (effectiveScore >= 45 || daysUntilReady <= 1) {
+    label = '🟡 Easy run only'; sub = 'Moderate recovery — keep it zone 2';
+    accentColor = '#f6e05e'; bgColor = 'rgba(246,224,94,0.1)';
+  } else {
+    label = '🔴 Rest day recommended'; sub = 'Low recovery — skip or walk only';
+    accentColor = '#fc8181'; bgColor = 'rgba(252,129,129,0.1)';
+  }
+
+  const battColor = battery != null ? (battery >= 70 ? '#68d391' : battery >= 40 ? '#f6e05e' : '#fc8181') : 'var(--text-tertiary)';
+  const hrvColor  = hrv != null ? (hrv >= 50 ? '#68d391' : hrv >= 30 ? '#f6e05e' : '#fc8181') : 'var(--text-tertiary)';
+  const scoreColor = score != null ? (score >= 75 ? '#68d391' : score >= 45 ? '#f6e05e' : '#fc8181') : 'var(--text-tertiary)';
+
+  const lastRunStr = lastRun
+    ? `Last run ${daysSince === 0 ? 'today' : daysSince === 1 ? 'yesterday' : daysSince + ' days ago'} · ${lastRun.distanceKm.toFixed(1)}km`
+    : 'No recent run data';
+
+  el.innerHTML = `
+    <div class="run-recovery-grid">
+      <div class="run-recovery-stat">
+        <div class="run-recovery-val" style="color:${battColor}">${battery ?? '—'}</div>
+        <div class="run-recovery-lbl">⚡ Battery</div>
+      </div>
+      <div class="run-recovery-stat">
+        <div class="run-recovery-val" style="color:${hrvColor}">${hrv != null ? hrv + 'ms' : '—'}</div>
+        <div class="run-recovery-lbl">💚 HRV</div>
+      </div>
+      <div class="run-recovery-stat">
+        <div class="run-recovery-val" style="color:${scoreColor}">${score ?? '—'}</div>
+        <div class="run-recovery-lbl">🩺 Recovery</div>
+      </div>
+    </div>
+    <div class="run-readiness" style="background:${bgColor}">
+      <div>
+        <div class="run-readiness-label" style="color:${accentColor}">${label}</div>
+        <div class="run-readiness-sub">${sub}</div>
+      </div>
+    </div>
+    <div style="font-size:11px;color:var(--text-tertiary);margin-top:8px;text-align:center">${lastRunStr}${daysUntilReady > 0 ? ' · ' + daysUntilReady + ' day' + (daysUntilReady > 1 ? 's' : '') + ' to fully recover' : ''}</div>
+    ${!garmin ? '<div style="font-size:10px;color:var(--text-tertiary);margin-top:4px;text-align:center">Connect Garmin bearer token for live HRV &amp; battery</div>' : ''}
+  `;
+}
+
+function renderRunPredictions(runs) {
+  const el      = document.getElementById('runPredictions');
+  const heroEl  = document.getElementById('runHeroPredict');
+  if (!el) return;
+
+  const qualified = runs.filter(r => r.distanceKm >= 3 && r.durationMin > 0);
+  if (!qualified.length) {
+    el.innerHTML = '<div style="color:var(--text-tertiary);font-size:12px">Log at least one run on Strava to see predictions.</div>';
+    if (heroEl) heroEl.textContent = '';
+    return;
+  }
+
+  const withPace = qualified.map(r => ({ ...r, secsPerKm: (r.durationMin * 60) / r.distanceKm }));
+  const bestRun  = withPace.reduce((b, r) => r.secsPerKm < b.secsPerKm ? r : b);
+
+  const dists = [
+    { km: 5,    label: '5K' },
+    { km: 10,   label: '10K' },
+    { km: 21.1, label: 'Half Marathon' },
+    { km: 42.2, label: 'Full Marathon' },
+  ];
+
+  const maxMins = riegelPredict(bestRun.distanceKm, bestRun.secsPerKm, 42.2);
+
+  const hmMins = riegelPredict(bestRun.distanceKm, bestRun.secsPerKm, 21.1);
+  if (heroEl) {
+    const h = Math.floor(hmMins / 60), m = Math.round(hmMins % 60);
+    heroEl.textContent = `Predicted HM: ${h}:${String(m).padStart(2,'0')}`;
+  }
+
+  el.innerHTML = `
+    <div style="font-size:10px;color:var(--text-tertiary);margin-bottom:10px">Based on best ${bestRun.distanceKm.toFixed(1)}km @ ${runFormatPace(bestRun.secsPerKm)}</div>
+    <div class="run-predict-grid">
+      ${dists.map(({ km, label }) => {
+        const mins  = riegelPredict(bestRun.distanceKm, bestRun.secsPerKm, km);
+        const pace  = (mins * 60) / km;
+        const h = Math.floor(mins / 60), m = Math.round(mins % 60);
+        const str   = h > 0 ? `${h}:${String(m).padStart(2,'0')}` : `${Math.round(mins)}min`;
+        const pct   = Math.min(100, (mins / maxMins) * 100);
+        return `<div class="run-predict-item">
+          <div class="run-predict-dist">${label}</div>
+          <div class="run-predict-time">${str}</div>
+          <div class="run-predict-pace">${runFormatPace(pace)}</div>
+          <div class="run-predict-bar"><div class="run-predict-bar-fill" style="width:${pct}%"></div></div>
+        </div>`;
+      }).join('')}
+    </div>
+    <div style="font-size:10px;color:var(--text-tertiary);margin-top:10px;text-align:center">Riegel formula · training pace estimates</div>
+  `;
+}
+
+function renderRunNextRun(garmin, lastRun, weekKm, target) {
+  const el = document.getElementById('runNextRunContent');
+  if (!el) return;
+
+  const score   = garmin?.recoveryScore ?? 60;
+  const battery = garmin?.bodyBattery  ?? 60;
+  const today   = new Date().getDay();
+  const remaining = Math.max(0, target - weekKm);
+  const weeksLeft = Math.max(1, Math.ceil((RACE_DATE - new Date()) / 604800000));
+
+  let type, dist, note, color, bg;
+  if (score < 40 || battery < 25) {
+    type = 'Rest Day'; dist = null;
+    note = 'Recovery is very low — full rest or gentle walk';
+    color = '#fc8181'; bg = 'rgba(252,129,129,0.08)';
+  } else if (score < 60 || battery < 45) {
+    type = 'Easy Recovery Run'; dist = Math.min(6, remaining || 6);
+    note = 'Zone 2 only · conversational pace · no watch goals';
+    color = '#f6e05e'; bg = 'rgba(246,224,94,0.08)';
+  } else if ((today === 0 || today === 6) && weekKm < target * 0.7) {
+    const longKm = Math.min(weeksLeft <= 4 ? 16 : 20, Math.max(8, remaining * 0.6));
+    type = 'Long Run'; dist = +longKm.toFixed(0);
+    note = 'Easy/steady pace · biggest run of the week';
+    color = '#68d391'; bg = 'rgba(104,211,145,0.08)';
+  } else if (weekKm === 0) {
+    type = 'Activation Run'; dist = Math.min(7, remaining || 7);
+    note = 'Easy start to the week · wake up the legs';
+    color = '#68d391'; bg = 'rgba(104,211,145,0.08)';
+  } else {
+    dist = Math.max(5, Math.min(12, remaining * 0.5));
+    type = 'Tempo Run'; dist = +dist.toFixed(0);
+    note = 'Comfortably hard · race-pace practice';
+    color = '#58a6ff'; bg = 'rgba(88,166,255,0.08)';
+  }
+
+  el.innerHTML = `
+    <div class="run-next-inner" style="background:${bg}">
+      <div class="run-next-type" style="color:${color}">${type}</div>
+      ${dist != null ? `<div class="run-next-dist">${dist} km</div>` : '<div class="run-next-dist">—</div>'}
+      <div class="run-next-note">${note}</div>
+      <div class="run-next-remain">${remaining > 0 ? remaining.toFixed(1) + 'km left to hit ' + target + 'km week target' : '✅ Weekly target reached!'}</div>
+    </div>
+  `;
+}
+
+function renderRunRecentList(runs) {
+  const el = document.getElementById('runRecentList');
+  if (!el) return;
+  if (!runs?.length) {
+    el.innerHTML = '<div style="font-size:12px;color:var(--text-tertiary);padding:8px 0">No runs found on Strava.</div>';
+    return;
+  }
+  el.innerHTML = runs.slice(0, 8).map(r => {
+    const secsPerKm = r.durationMin > 0 && r.distanceKm > 0 ? (r.durationMin * 60) / r.distanceKm : null;
+    const chips = [
+      secsPerKm ? `🏃 ${runFormatPace(secsPerKm)}` : null,
+      r.heartRateAvg ? `❤️ ${r.heartRateAvg}bpm` : null,
+      r.elevationM ? `↑ ${Math.round(r.elevationM)}m` : null,
+      `⏱ ${runFormatDur(r.durationMin)}`,
+    ].filter(Boolean);
+    const dateStr = r.date ? new Date(r.date + 'T12:00:00').toLocaleDateString('en-GB', { day: 'numeric', month: 'short' }) : '';
+    return `
+      <div class="run-entry-v2">
+        <div class="run-entry-v2-top">
+          <span class="run-entry-v2-dist">${r.distanceKm.toFixed(2)}km</span>
+          <span class="run-entry-v2-name">${r.name || 'Run'}</span>
+          <span class="run-entry-v2-date">${dateStr}</span>
+        </div>
+        <div class="run-entry-v2-chips">${chips.map(c => `<span class="run-entry-v2-chip">${c}</span>`).join('')}</div>
+      </div>
+    `;
+  }).join('');
 }
 
 async function initRunning() {
   runCalcCountdown();
   const target = runCalcWeeklyTarget();
-  const targetEl = document.getElementById('runStatTarget');
+  const targetEl  = document.getElementById('runStatTarget');
   const weekLblEl = document.getElementById('runWeeklyTargetLabel');
-  if (targetEl) targetEl.textContent = target + ' km';
-  if (weekLblEl) weekLblEl.textContent = target;
+  if (targetEl)  targetEl.textContent  = target;
+  if (weekLblEl) weekLblEl.textContent = `${target}km target`;
 
-  const localRuns = JSON.parse(localStorage.getItem(RUN_KEY) || '[]');
-
-  // Calculate weekly actual from local data
-  const weekStart = runGetMondayISO(new Date());
-  const weekKm = localRuns
-    .filter(r => r.date >= weekStart)
-    .reduce((s, r) => s + (r.distanceKm || 0), 0);
-  const weekActEl = document.getElementById('runWeeklyActual');
-  const weekStatEl = document.getElementById('runStatWeekly');
-  const barEl = document.getElementById('runWeeklyBar');
-  if (weekActEl) weekActEl.textContent = weekKm.toFixed(1);
-  if (weekStatEl) weekStatEl.textContent = weekKm.toFixed(1);
-  if (barEl) barEl.style.width = Math.min(100, (weekKm / target) * 100) + '%';
-
-  // Total runs stat
-  const totalEl = document.getElementById('runStatTotal');
-  if (totalEl) totalEl.textContent = localRuns.length;
-
-  // Render recent runs list (local data)
-  const listEl = document.getElementById('runRecentList');
-  if (listEl) {
-    const recent = [...localRuns].sort((a, b) => b.date.localeCompare(a.date)).slice(0, 5);
-    if (recent.length) {
-      listEl.innerHTML = recent.map(r => `
-        <div class="run-entry">
-          <div class="run-entry-dist">${r.distanceKm?.toFixed(1) || '—'} km</div>
-          <div class="run-entry-meta">${r.pace ? runFormatPace(r.pace) : ''} ${r.heartRateAvg ? '· ' + r.heartRateAvg + ' bpm avg' : ''}</div>
-          <div class="run-entry-date">${r.date}</div>
-        </div>`).join('');
-    } else {
-      listEl.innerHTML = '<div style="font-size:12px;color:var(--text-tertiary);padding:8px 0">No runs logged yet. Add runs manually or connect Garmin.</div>';
+  // Garmin from localStorage cache (instant, no network)
+  let garmin = null;
+  try {
+    const raw = localStorage.getItem('hub_garmin_cache');
+    if (raw) {
+      const g = JSON.parse(raw);
+      const ageH = g.fetchedAt ? (Date.now() - new Date(g.fetchedAt).getTime()) / 3600000 : 99;
+      if (ageH < 12) garmin = g;
     }
+  } catch {}
+
+  // Fetch Strava data
+  const statusEl = document.getElementById('runStravaStatus');
+  let runs = [], ytd = null;
+  try {
+    if (statusEl) statusEl.textContent = 'Syncing…';
+    const res = await fetch('/api/strava');
+    if (res.ok) {
+      const d = await res.json();
+      runs = d.recentRuns || [];
+      ytd  = d.ytd || null;
+      _stravaCache = d;
+      if (statusEl) statusEl.textContent = d.fromCache ? 'cached' : 'live';
+    } else {
+      if (statusEl) statusEl.textContent = 'Strava error';
+    }
+  } catch {
+    if (statusEl) statusEl.textContent = 'offline';
   }
 
-  // Personal bests from local data
-  if (localRuns.length) {
-    const fiveks = localRuns.filter(r => r.distanceKm >= 4.8 && r.distanceKm <= 5.5);
-    const tenks  = localRuns.filter(r => r.distanceKm >= 9.5 && r.distanceKm <= 11);
-    const longest = localRuns.reduce((m, r) => (r.distanceKm || 0) > (m?.distanceKm || 0) ? r : m, null);
-    const bestPace = arr => arr.length ? Math.min(...arr.map(r => r.pace || Infinity)) : null;
-    const p5 = bestPace(fiveks), p10 = bestPace(tenks);
-    const pb5El = document.getElementById('pbFiveK');
-    const pb10El = document.getElementById('pbTenK');
-    const pbLEl = document.getElementById('pbLongest');
-    if (pb5El) pb5El.textContent = p5 && p5 !== Infinity ? runFormatPace(p5) : '—';
-    if (pb10El) pb10El.textContent = p10 && p10 !== Infinity ? runFormatPace(p10) : '—';
-    if (pbLEl) pbLEl.textContent = longest ? longest.distanceKm.toFixed(1) + ' km' : '—';
-  }
+  // Weekly km from Strava runs this week
+  const weekStart = runGetMondayISO(new Date());
+  const weekRuns  = runs.filter(r => r.date && r.date >= weekStart);
+  const weekKm    = weekRuns.reduce((s, r) => s + (r.distanceKm || 0), 0);
 
-  // Garmin sync status
-  const syncEl = document.getElementById('runSyncStatus');
-  const cached = localStorage.getItem('hub_garmin_cache');
-  if (syncEl && cached) {
-    try {
-      const cdata = JSON.parse(cached);
-      if (cdata.fetchedAt) {
-        const ago = Math.round((Date.now() - new Date(cdata.fetchedAt)) / 60000);
-        syncEl.textContent = `Last synced ${ago}m ago via Garmin`;
-      }
-    } catch {}
-  }
+  const weekActEl  = document.getElementById('runWeeklyActual');
+  const weekStatEl = document.getElementById('runStatWeekly');
+  const barEl      = document.getElementById('runWeeklyBar');
+  const ytdEl      = document.getElementById('runStatYTD');
+  if (weekActEl)  weekActEl.textContent  = weekKm.toFixed(1);
+  if (weekStatEl) weekStatEl.textContent = weekKm.toFixed(1);
+  if (barEl)      barEl.style.width      = Math.min(100, (weekKm / target) * 100) + '%';
+  if (ytdEl)      ytdEl.textContent      = ytd ? ytd.distanceKm.toFixed(0) : '—';
+
+  const lastRun = runs[0] || null;
+  renderRunRecovery(garmin, lastRun);
+  renderRunPredictions(runs);
+  renderRunNextRun(garmin, lastRun, weekKm, target);
+  renderRunRecentList(runs);
 }
 
 // ═══════════ SUPABASE SYNC ═══════════

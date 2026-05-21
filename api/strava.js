@@ -59,7 +59,7 @@ module.exports = async function handler(req, res) {
     const [athleteR, statsR, activitiesR] = await Promise.allSettled([
       stravaGet('/athlete', token),
       stravaGet('/athlete/stats', token).catch(() => null),
-      stravaGet('/athlete/activities?per_page=10', token),
+      stravaGet('/athlete/activities?per_page=20&after=' + Math.floor((Date.now() - 90 * 86400000) / 1000), token),
     ]);
 
     const athlete    = athleteR.status    === 'fulfilled' ? athleteR.value    : null;
@@ -68,7 +68,7 @@ module.exports = async function handler(req, res) {
 
     const recentRuns = (activities || [])
       .filter(a => a.type === 'Run' || a.sport_type === 'Run')
-      .slice(0, 5)
+      .slice(0, 20)
       .map(a => ({
         id:          a.id,
         name:        a.name,
