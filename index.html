@@ -9553,7 +9553,8 @@ function renderRunRecovery(garmin, lastRun) {
 
   let daysSince = null;
   if (lastRun?.date) {
-    daysSince = Math.floor((Date.now() - new Date(lastRun.date).getTime()) / 86400000);
+    // Parse as local noon to avoid UTC-offset shifting the date by ±1 day
+    daysSince = Math.floor((Date.now() - new Date(lastRun.date + 'T12:00:00').getTime()) / 86400000);
   }
 
   // Recovery days needed from last run effort
