@@ -56,13 +56,16 @@ module.exports = async function handler(req, res) {
   try {
     const token = await getAccessToken();
 
-    const [athleteR, statsR, activitiesR] = await Promise.allSettled([
-      stravaGet('/athlete', token),
-      stravaGet('/athlete/stats', token).catch(() => null),
-      stravaGet('/athlete/activities?per_page=100&after=' + Math.floor((Date.now() - 90 * 86400000) / 1000), token),
+    // Get athlete first (need ID for stats endpoint)
+    const athlete = await stravaGet('/athlete', token).catch(() => null);
+    const athleteId = athlete?.id;
+
+    const [statsR, activitiesR] = await Promise.allSettled([
+      athleteId ? stravaGet(`/athletes/${athleteId}/stats`, token) : Promise.resolve(null),
+      // No 'after' filter: Strava sorts ascending when 'after' is used; omit it for newest-first order
+      stravaGet('/athlete/activities?per_page=100', token),
     ]);
 
-    const athlete    = athleteR.status    === 'fulfilled' ? athleteR.value    : null;
     const stats      = statsR.status      === 'fulfilled' ? statsR.value      : null;
     const activities = activitiesR.status === 'fulfilled' ? activitiesR.value : [];
 
